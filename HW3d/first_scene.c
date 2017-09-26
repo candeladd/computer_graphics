@@ -29,8 +29,11 @@ double zh=0;      //  Rotation of teapot
 int axes=1;       //  Display axes
 int mode=0;       //  What to display
 
-double top =  (1.0,1.0,1.0)
-double 
+//  Cosine and Sine in degrees
+#define Cos(x) (cos((x)*3.1415927/180))
+#define Sin(x) (sin((x)*3.1415927/180))
+
+ 
 
 /*
  *  Convenience routine to output raster text
@@ -63,8 +66,8 @@ static void SolidPlane(double x,double y,double z,
                        double ux,double uy, double uz)
 {
    // Dimensions used to size airplane
-   const double wid=0.05;
-   const double nose=+0.50;
+   const double wid= 0.5;
+   const double nose=+1.0;
    const double cone= 0.20;
    const double wing= 0.00;
    const double strk=-0.20;
@@ -93,10 +96,10 @@ static void SolidPlane(double x,double y,double z,
    //  Save current transforms
    glPushMatrix();
    //  Offset, scale and rotate
-   glTranslated(x,y,z);
+   glTranslated(0,0,0);
    glMultMatrixd(mat);
    //  Nose (4 sided)
-   glColor3f(0,0,1);
+   glColor3f(0,1,1);
    glBegin(GL_TRIANGLES);
    glVertex3d(nose, 0.0, 0.0);
    glVertex3d(cone, wid, wid);
@@ -114,52 +117,7 @@ static void SolidPlane(double x,double y,double z,
    glVertex3d(cone,-wid, wid);
    glVertex3d(cone,-wid,-wid);
    glEnd();
-   //  Fuselage (square tube)
-   glBegin(GL_QUADS);
-   glVertex3d(cone, wid, wid);
-   glVertex3d(cone,-wid, wid);
-   glVertex3d(tail,-wid, wid);
-   glVertex3d(tail, wid, wid);
-
-   glVertex3d(cone, wid,-wid);
-   glVertex3d(cone,-wid,-wid);
-   glVertex3d(tail,-wid,-wid);
-   glVertex3d(tail, wid,-wid);
-
-   glVertex3d(cone, wid, wid);
-   glVertex3d(cone, wid,-wid);
-   glVertex3d(tail, wid,-wid);
-   glVertex3d(tail, wid, wid);
-
-   glVertex3d(cone,-wid, wid);
-   glVertex3d(cone,-wid,-wid);
-   glVertex3d(tail,-wid,-wid);
-   glVertex3d(tail,-wid, wid);
-
-   glVertex3d(tail,-wid, wid);
-   glVertex3d(tail, wid, wid);
-   glVertex3d(tail, wid,-wid);
-   glVertex3d(tail,-wid,-wid);
-   glEnd();
-   //  Wings (plane triangles)
-   glColor3f(1,1,0);
-   glBegin(GL_TRIANGLES);
-   glVertex3d(wing, 0.0, wid);
-   glVertex3d(tail, 0.0, wid);
-   glVertex3d(tail, 0.0, 0.5);
-
-   glVertex3d(wing, 0.0,-wid);
-   glVertex3d(tail, 0.0,-wid);
-   glVertex3d(tail, 0.0,-0.5);
-   glEnd();
-   //  Vertical tail (plane triangle)
-   glColor3f(1,0,0);
-   glBegin(GL_POLYGON);
-   glVertex3d(strk, 0.0, 0.0);
-   glVertex3d(tail, 0.3, 0.0);
-   glVertex3d(tail, 0.0, 0.0);
-   glEnd();
-   //  Undo transformations
+   // undo transformations
    glPopMatrix();
 }
 
@@ -180,57 +138,9 @@ void display()
    glRotatef(ph,1,0,0);
    glRotatef(th,0,1,0);
    //  Decide what to draw
-   switch (mode)
-   {
-      //  Draw cubes
-      case 0:
-         cube(0,0,0 , 0.3,0.3,0.3 , 0);
-         cube(1,0,0 , 0.2,0.2,0.2 , 45);
-         cube(0,1,0 , 0.4,0.4,0.2 , 90);
-         break;
-      //  Draw spheres
-      case 1:
-         sphere1(0,0,0 , 0.4);
-         sphere1(1,0,0 , 0.2);
-         sphere2(0,1,0 , 0.2);
-         break;
-      //  Line airplane
-      case 2:
-         PolyPlane(GL_LINE_LOOP , 0,0,0);
-         break;
-      //  Polygon airplane
-      case 3:
-         PolyPlane(GL_POLYGON , 0,0,0);
-         break;
-      //  Three flat airplanes
-      case 4:
-         FlatPlane( 0.0, 0.0, 0.0);
-         FlatPlane(-0.5, 0.5,-0.5);
-         FlatPlane(-0.5,-0.5,-0.5);
-         break;
-      // Three solid airplanes
-      case 5:
-         SolidPlane( 0, 0, 0 , 1,0,0 , 0, 1,0);
-         SolidPlane(-1, 1, 0 ,-1,0,0 , 0,-1,0);
-         SolidPlane(-1,-1, 0 ,-1,0,0 , 0, 1,0);
-         break;
-      // Mix of objects
-      case 6:
-         //  Cube
-         cube(-1,0,0 , 0.3,0.3,0.3 , 3*zh);
-         //  Ball
-         sphere1(0,0,0 , 0.3);
-         //  Solid Airplane
-         SolidPlane(Cos(zh),Sin(zh), 0 ,-Sin(zh),Cos(zh),0 , Cos(4*zh),0,Sin(4*zh));
-         //  Utah Teapot
-         glPushMatrix();
-         glTranslatef(0,0,-1);
-         glRotatef(zh,0,1,0);
-         glColor3f(Cos(zh)*Cos(zh),0,Sin(zh)*Sin(zh));
-         glutSolidTeapot(0.5);
-         glPopMatrix();
-         break;
-   }
+   //  Cube
+   //  Solid Airplane
+   SolidPlane(Cos(zh),Sin(zh), 0 ,-Sin(zh),Cos(zh),0 , Cos(4*zh),0,Sin(4*zh));
    //  White
    glColor3f(1,1,1);
    //  Draw axes
@@ -288,6 +198,25 @@ void special(int key,int x,int y)
 }
 
 /*
+ *  GLUT calls this routine when a key is pressed
+ */
+void key(unsigned char ch,int x,int y)
+{
+   //  Exit on ESC
+   if (ch == 27)
+      exit(0);
+   //  Reset view angle
+   else if (ch == '0')
+      th = ph = 0;
+   //  Toggle axes
+   else if (ch == 'a' || ch == 'A')
+      axes = 1-axes;
+   //  Switch display mode
+   //  Tell GLUT it is necessary to redisplay the scene
+   glutPostRedisplay();
+}
+
+/*
  *  GLUT calls this routine when the window is resized
  */
 void reshape(int width,int height)
@@ -309,6 +238,15 @@ void reshape(int width,int height)
    glLoadIdentity();
 }
 
+/*
+ *  GLUT calls this toutine when there is nothing else to do
+ */
+void idle()
+{
+   double t = glutGet(GLUT_ELAPSED_TIME)/1000.0;
+   zh = fmod(90*t,360);
+   glutPostRedisplay();
+}
 
 /*
  *  Start up GLUT and tell it what to do
@@ -322,8 +260,6 @@ int main(int argc,char* argv[])
    glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
    //  Create the window
    glutCreateWindow("Objects");
-   //  Tell GLUT to call "idle" when there is nothing else to do
-   glutIdleFunc(idle);
    //  Tell GLUT to call "display" when the scene should be drawn
    glutDisplayFunc(display);
    //  Tell GLUT to call "reshape" when the window is resized
