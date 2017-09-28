@@ -67,11 +67,13 @@ static void SolidPlane(double x,double y,double z,
 {
    // Dimensions used to size airplane
    const double wid= 0.5;
-   const double nose=+1.0;
-   const double cone= 0.20;
+   const double nose=+2.0;
+   const double cone= 1;
    const double wing= 0.00;
    const double strk=-0.20;
    const double tail=-0.50;
+   const double rcorner = 1;
+   const double floor1 = -1;
    //  Unit vector in direction of flght
    double D0 = sqrt(dx*dx+dy*dy+dz*dz);
    double X0 = dx/D0;
@@ -96,7 +98,7 @@ static void SolidPlane(double x,double y,double z,
    //  Save current transforms
    glPushMatrix();
    //  Offset, scale and rotate
-   glTranslated(0,0,0);
+   glTranslated(x,y,z);
    glMultMatrixd(mat);
    //  Nose (4 sided)
    glColor3f(0,1,1);
@@ -116,6 +118,44 @@ static void SolidPlane(double x,double y,double z,
    glVertex3d(nose, 0.0, 0.0);
    glVertex3d(cone,-wid, wid);
    glVertex3d(cone,-wid,-wid);
+   glEnd();
+   glBegin(GL_QUADS);
+   //back exterior wall
+   glColor3f(1, 0, 0);
+   glVertex3d(cone, -wid, wid);
+   glVertex3d(0,-wid, wid);
+   glVertex3d(0, wid, wid);
+   glVertex3d(cone, wid, wid);
+   //right exterior wall
+   glColor3f(0, 0, 1);
+   glVertex3d(cone, wid, -wid);
+   glVertex3d(0, wid, -wid);
+   glVertex3d(0,wid, wid);
+   glVertex3d(cone, wid, wid);
+   //front exterior wall
+   glColor3f(0, 1, 0);
+   glVertex3d(cone, -wid, -wid);
+   glVertex3d(0, -wid, -wid);
+   glVertex3d(0,wid, -wid);
+   glVertex3d(cone, wid, -wid);
+   //left exterior wall
+   glColor3f(0, 0, 1);
+   glVertex3d(cone, -wid, -wid);
+   glVertex3d(0, -wid, -wid);
+   glVertex3d(0,-wid, wid);
+   glVertex3d(cone, -wid, wid);
+   //floor
+   glColor3f(0,1,.5);
+   glVertex3d(0,.5,0.5);
+   glVertex3d(0,.5,-0.5);
+   glVertex3d(0,-.5,-0.5);
+   glVertex3d(0,-.5,0.5);
+   //door
+   glColor3f(1,1,1);
+   glVertex3d(0,0.2,-.501);
+   glVertex3d(0,-0.2,-.501);
+   glVertex3d(.4,-0.2,-.501);
+   glVertex3d(.4,0.2,-.501);
    glEnd();
    // undo transformations
    glPopMatrix();
