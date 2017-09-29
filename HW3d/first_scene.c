@@ -1,12 +1,14 @@
 /*
- *  3D Objects
+ *  Projections
  *
- *  Demonstrates how to draw objects in 3D.
+ *  Draw 27 cubes to demonstrate orthogonal & prespective projections
  *
  *  Key bindings:
- *  m/M        Cycle through different sets of objects
+ *  m          Toggle between perspective and orthogonal
+ *  +/-        Changes field of view for perspective
  *  a          Toggle axes
  *  arrows     Change view angle
+ *  PgDn/PgUp  Zoom in and out
  *  0          Reset view angle
  *  ESC        Exit
  */
@@ -22,18 +24,18 @@
 #include <GL/glut.h>
 #endif
 
-
+int axes=0;       //  Display axes
+int mode=0;       //  Projection mode
 int th=0;         //  Azimuth of view angle
 int ph=0;         //  Elevation of view angle
 double zh=0;      //  Rotation of teapot
-int axes=1;       //  Display axes
-int mode=0;       //  What to display
+int fov=55;       //  Field of view (for perspective)
+double asp=1;     //  Aspect ratio
+double dim=5.0;   //  Size of world
 
-//  Cosine and Sine in degrees
-#define Cos(x) (cos((x)*3.1415927/180))
-#define Sin(x) (sin((x)*3.1415927/180))
-
- 
+//  Macro for sin & cos in degrees
+#define Cos(th) cos(3.1415927/180*(th))
+#define Sin(th) sin(3.1415927/180*(th))
 
 /*
  *  Convenience routine to output raster text
@@ -61,19 +63,16 @@ void Print(const char* format , ...)
  *    nose towards (dx,dy,dz)
  *    up towards (ux,uy,uz)
  */
-static void SolidPlane(double x,double y,double z,
+static void Solidhouse(double x,double y,double z,
                        double dx,double dy,double dz,
                        double ux,double uy, double uz)
 {
-   // Dimensions used to size airplane
+   // Dimensions used to size house
    const double wid= 0.5;
    const double nose=+2.0;
-   const double cone= 1;
-   const double wing= 0.00;
-   const double strk=-0.20;
-   const double tail=-0.50;
-   const double rcorner = 1;
-   const double floor1 = -1;
+   const double cone= .98;
+   const double chimtop = 2;
+   const double chimbot = .8;
    //  Unit vector in direction of flght
    double D0 = sqrt(dx*dx+dy*dy+dz*dz);
    double X0 = dx/D0;
@@ -133,7 +132,7 @@ static void SolidPlane(double x,double y,double z,
    glVertex3d(0,wid, wid);
    glVertex3d(cone, wid, wid);
    //front exterior wall
-   glColor3f(0, 1, 0);
+   glColor3f(1, 0, 0);
    glVertex3d(cone, -wid, -wid);
    glVertex3d(0, -wid, -wid);
    glVertex3d(0,wid, -wid);
@@ -145,22 +144,164 @@ static void SolidPlane(double x,double y,double z,
    glVertex3d(0,-wid, wid);
    glVertex3d(cone, -wid, wid);
    //floor
-   glColor3f(0,1,.5);
+   glColor3f(0,.5,.5);
    glVertex3d(0,.5,0.5);
    glVertex3d(0,.5,-0.5);
    glVertex3d(0,-.5,-0.5);
    glVertex3d(0,-.5,0.5);
    //door
-   glColor3f(1,1,1);
+   glColor3f(.5,.35,.5);
    glVertex3d(0,0.2,-.501);
    glVertex3d(0,-0.2,-.501);
    glVertex3d(.4,-0.2,-.501);
    glVertex3d(.4,0.2,-.501);
+   // window left
+   //window right
+   //chimney
+   glColor3f(1,1,1);
+   glVertex3d(chimbot,-.48,0);
+   glVertex3d(chimtop,-.48,0);
+   glVertex3d(chimtop,-0.2,0);
+   glVertex3d(chimbot,-0.2,0);
+   //chimney2
+   glColor3f(1,1,1);
+   glVertex3d(chimbot,-.48,.2);
+   glVertex3d(chimtop,-.48,.2);
+   glVertex3d(chimtop,-0.2,.2);
+   glVertex3d(chimbot,-0.2,.2);
+   //chimney3
+   glColor3f(1,1,1);
+   glVertex3d(chimbot,-0.48,0);
+   glVertex3d(chimbot,-0.48,0.2);
+   glVertex3d(chimtop,-0.48,.2);
+   glVertex3d(chimtop,-0.48,0);
+   //chimney4
+   glColor3f(1,1,1);
+   glVertex3d(chimbot,-0.2,0);
+   glVertex3d(chimbot,-0.2,0.2);
+   glVertex3d(chimtop,-0.2,0.2);
+   glVertex3d(chimtop,-0.2,0);
+   //chimney topper
+   glColor3f(1,1,0);
+   glVertex3d(chimtop,-0.51,0.21);
+   glVertex3d(2.1,-0.51,0.21);
+   glVertex3d(2.1,-0.51,-0.01);
+   glVertex3d(chimtop,-0.51,-0.01);
+   //chimney topper2
+   glColor3f(1,1,0);
+   glVertex3d(chimtop,-0.51,0.21);
+   glVertex3d(chimtop,-0.19,0.21);
+   glVertex3d(2.1,-0.19,0.21);
+   glVertex3d(2.1,-0.51,0.21);
+   //chimney topper3
+   glColor3f(1,1,0);
+   glVertex3d(chimtop,-0.19,0.21); 
+   glVertex3d(chimtop,-0.19,-0.01);
+   glVertex3d(2.1,-0.19,-0.01);
+   glVertex3d(2.1,-0.19,0.21);
+   //chimney topper4
+   glColor3f(1,1,0);
+   glVertex3d(chimtop,-0.19,-.01);
+   glVertex3d(2.1,-0.19,-0.01);
+   glVertex3d(2.1,-0.51,-0.01);
+   glVertex3d(chimtop,-0.51,-0.01);
+   //chimney topper base
+   glColor3f(1,1,0);
+   glVertex3d(chimtop,-0.51,0.21);
+   glVertex3d(chimtop,-0.51,-0.01);
+   glVertex3d(chimtop,-0.19,-0.01);
+   glVertex3d(chimtop,-0.19,0.21);
+   //chimney topper top
+   glColor3f(1,1,0);
+   glVertex3d(2.1,-0.51,0.21);
+   glVertex3d(2.1,-0.51,-0.01);
+   glVertex3d(2.1,-0.19,-0.01);
+   glVertex3d(2.1,-0.19,0.21);
    glEnd();
    // undo transformations
    glPopMatrix();
 }
 
+/*
+ *  Set projection
+ */
+static void Project()
+{
+   //  Tell OpenGL we want to manipulate the projection matrix
+   glMatrixMode(GL_PROJECTION);
+   //  Undo previous transformations
+   glLoadIdentity();
+   //  Perspective transformation
+   if (mode)
+      gluPerspective(fov,asp,dim/4,4*dim);
+   //  Orthogonal projection
+   else
+      glOrtho(-asp*dim,+asp*dim, -dim,+dim, -dim,+dim);
+   //  Switch to manipulating the model matrix
+   glMatrixMode(GL_MODELVIEW);
+   //  Undo previous transformations
+   glLoadIdentity();
+}
+
+/*
+ *  Draw a cube
+ *     at (x,y,z)
+ *     dimentions (dx,dy,dz)
+ *     rotated th about the y axis
+ */
+static void cube(double x,double y,double z,
+                 double dx,double dy,double dz,
+                 double th)
+{
+   //  Save transformation
+   glPushMatrix();
+   //  Offset
+   glTranslated(x,y,z);
+   glRotated(th,0,1,0);
+   glScaled(dx,dy,dz);
+   //  Cube
+   glBegin(GL_QUADS);
+   //  Front
+   glColor3f(1,0,0);
+   glVertex3f(-1,-1, 1);
+   glVertex3f(+1,-1, 1);
+   glVertex3f(+1,+1, 1);
+   glVertex3f(-1,+1, 1);
+   //  Back
+   glColor3f(0,0,1);
+   glVertex3f(+1,-1,-1);
+   glVertex3f(-1,-1,-1);
+   glVertex3f(-1,+1,-1);
+   glVertex3f(+1,+1,-1);
+   //  Right
+   glColor3f(1,1,0);
+   glVertex3f(+1,-1,+1);
+   glVertex3f(+1,-1,-1);
+   glVertex3f(+1,+1,-1);
+   glVertex3f(+1,+1,+1);
+   //  Left
+   glColor3f(0,1,0);
+   glVertex3f(-1,-1,-1);
+   glVertex3f(-1,-1,+1);
+   glVertex3f(-1,+1,+1);
+   glVertex3f(-1,+1,-1);
+   //  Top
+   glColor3f(0,1,1);
+   glVertex3f(-1,+1,+1);
+   glVertex3f(+1,+1,+1);
+   glVertex3f(+1,+1,-1);
+   glVertex3f(-1,+1,-1);
+   //  Bottom
+   glColor3f(1,0,1);
+   glVertex3f(-1,-1,-1);
+   glVertex3f(+1,-1,-1);
+   glVertex3f(+1,-1,+1);
+   glVertex3f(-1,-1,+1);
+   //  End
+   glEnd();
+   //  Undo transofrmations
+   glPopMatrix();
+}
 
 /*
  *  OpenGL (GLUT) calls this routine to display the scene
@@ -174,16 +315,33 @@ void display()
    glEnable(GL_DEPTH_TEST);
    //  Undo previous transformations
    glLoadIdentity();
-   //  Set view angle
-   glRotatef(ph,1,0,0);
-   glRotatef(th,0,1,0);
-   //  Decide what to draw
-   //  Cube
-   //  Solid Airplane
-   SolidPlane(Cos(zh),Sin(zh), 0 ,-Sin(zh),Cos(zh),0 , Cos(4*zh),0,Sin(4*zh));
-   //  White
+   //  Perspective - set eye position
+   if (mode)
+   {
+      double Ex = -2*dim*Sin(th)*Cos(ph);
+      double Ey = +2*dim        *Sin(ph);
+      double Ez = +2*dim*Cos(th)*Cos(ph);
+      gluLookAt(Ex,Ey,Ez , 0,0,0 , 0,Cos(ph),0);
+   }
+   //  Orthogonal - set world orientation
+   else
+   {
+      glRotatef(ph,1,0,0);
+      glRotatef(th,0,1,0);
+   }
+   //  draw houses
+   Solidhouse(Cos(zh),Sin(zh), 0 ,-Sin(zh),Cos(zh),0 , Cos(4*zh),0,Sin(4*zh));
+   Solidhouse(-1,Sin(zh), 0 ,-Sin(zh),Cos(zh),0 , Cos(180),0,Sin(4*zh));
+   Solidhouse(-1,Sin(zh), 2 ,-Sin(zh),Cos(zh),0 , Cos(zh),0,Sin(90));
+   //grass
+   glBegin(GL_QUADS);
+   glColor3f(0,1,0);
+   glVertex3d(3,0,3);
+   glVertex3d(-3,0,3);
+   glVertex3d(-3,0,-3);
+   glVertex3d(3,0,-3);
+   glEnd();
    glColor3f(1,1,1);
-   //  Draw axes
    if (axes)
    {
       glBegin(GL_LINES);
@@ -202,16 +360,13 @@ void display()
       glRasterPos3d(0.0,0.0,len);
       Print("Z");
    }
-   //  Five pixels from the lower left corner of the window
+   //  Display parameters
    glWindowPos2i(5,5);
-   //  Print the text string
-   Print("Angle=%d,%d",th,ph);
-   //  Render the scene
+   Print("Angle=%d,%d  Dim=%.1f FOV=%d Projection=%s",th,ph,dim,fov,mode?"Perpective":"Orthogonal");
+   //  Render the scene and make it visible
    glFlush();
-   //  Make the rendered scene visible
    glutSwapBuffers();
 }
-
 
 /*
  *  GLUT calls this routine when an arrow key is pressed
@@ -230,9 +385,17 @@ void special(int key,int x,int y)
    //  Down arrow key - decrease elevation by 5 degrees
    else if (key == GLUT_KEY_DOWN)
       ph -= 5;
+   //  PageUp key - increase dim
+   else if (key == GLUT_KEY_PAGE_UP)
+      dim += 0.1;
+   //  PageDown key - decrease dim
+   else if (key == GLUT_KEY_PAGE_DOWN && dim>1)
+      dim -= 0.1;
    //  Keep angles to +/-360 degrees
    th %= 360;
    ph %= 360;
+   //  Update projection
+   Project();
    //  Tell GLUT it is necessary to redisplay the scene
    glutPostRedisplay();
 }
@@ -252,6 +415,15 @@ void key(unsigned char ch,int x,int y)
    else if (ch == 'a' || ch == 'A')
       axes = 1-axes;
    //  Switch display mode
+   else if (ch == 'm' || ch == 'M')
+      mode = 1-mode;
+   //  Change field of view angle
+   else if (ch == '-' && ch>1)
+      fov--;
+   else if (ch == '+' && ch<179)
+      fov++;
+   //  Reproject
+   Project();
    //  Tell GLUT it is necessary to redisplay the scene
    glutPostRedisplay();
 }
@@ -261,31 +433,12 @@ void key(unsigned char ch,int x,int y)
  */
 void reshape(int width,int height)
 {
-   const double dim=2.5;
    //  Ratio of the width to the height of the window
-   double w2h = (height>0) ? (double)width/height : 1;
+   asp = (height>0) ? (double)width/height : 1;
    //  Set the viewport to the entire window
    glViewport(0,0, width,height);
-   //  Tell OpenGL we want to manipulate the projection matrix
-   glMatrixMode(GL_PROJECTION);
-   //  Undo previous transformations
-   glLoadIdentity();
-   //  Orthogonal projection
-   glOrtho(-w2h*dim,+w2h*dim, -dim,+dim, -dim,+dim);
-   //  Switch to manipulating the model matrix
-   glMatrixMode(GL_MODELVIEW);
-   //  Undo previous transformations
-   glLoadIdentity();
-}
-
-/*
- *  GLUT calls this toutine when there is nothing else to do
- */
-void idle()
-{
-   double t = glutGet(GLUT_ELAPSED_TIME)/1000.0;
-   zh = fmod(90*t,360);
-   glutPostRedisplay();
+   //  Set projection
+   Project();
 }
 
 /*
@@ -293,20 +446,16 @@ void idle()
  */
 int main(int argc,char* argv[])
 {
-   //  Initialize GLUT and process user parameters
+   //  Initialize GLUT
    glutInit(&argc,argv);
    //  Request double buffered, true color window with Z buffering at 600x600
-   glutInitWindowSize(600,600);
    glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
-   //  Create the window
-   glutCreateWindow("Objects");
-   //  Tell GLUT to call "display" when the scene should be drawn
+   glutInitWindowSize(600,600);
+   glutCreateWindow("Projections");
+   //  Set callbacks
    glutDisplayFunc(display);
-   //  Tell GLUT to call "reshape" when the window is resized
    glutReshapeFunc(reshape);
-   //  Tell GLUT to call "special" when an arrow key is pressed
    glutSpecialFunc(special);
-   //  Tell GLUT to call "key" when a key is pressed
    glutKeyboardFunc(key);
    //  Pass control to GLUT so it can interact with the user
    glutMainLoop();
