@@ -1,3 +1,18 @@
 Andrew Candelaresi
 Home Work 3
 3d Scene
+CSCI4229/5229 Fall 2017
+
+simple scene with different viewing options.
+
+Key bindings
+  m          Toggle between perspective and orthogonal
+  +/-        Changes field of view for perspective
+  a          Toggle axes
+  arrows     Change view angle
+  PgDn/PgUp  Zoom in and out
+  0          Reset view angle
+  ESC        Exit
+
+
+Assignment took approximately 9 hours to complete, I learned alot!

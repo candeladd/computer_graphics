@@ -1,0 +1,34 @@
+Andrew Candelaresi
+Home Work 4
+3d Scene with perspective
+CSCI4229/5229 Fall 2017
+
+simple scene of houses in a cul de sac with a forest behind
+ with different viewing options.
+
+to compile use the makefile by typing:
+make
+gcc -O3 -o hw4 hw4.o   -lglut -lGLU -lGL -lm
+
+
+to clean use the comand:
+make clean
+
+Key bindings
+  m          Toggle between perspective and orthogonal
+  +/-        Changes field of view for perspective
+  a          Toggle axes
+  arrows     Change view angle
+  PgDn/PgUp  Zoom in and out
+  0          Reset view angle
+
+  f          toggle first person mode
+  when in first person mode
+  a	     look left
+  s 	     mover backwards
+  d          look right
+  w	     move forward
+
+  ESC        Exit
+Acknowldgements: Code taken from example 8 and example 9 from class
+Assignment took approximately 5 hours to complete.
