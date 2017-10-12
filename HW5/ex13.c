@@ -146,7 +146,7 @@ static void grass(double x,double y,double z,
                  double th)
 {
    //  Set specular color to white
-   float subtlegreen[] = {1,1,1,1};
+   float subtlegreen[] = {0,1,0,1};
    float green[] = {0,0,0,1};
    glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,shiny);
    glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,subtlegreen);
@@ -160,7 +160,7 @@ static void grass(double x,double y,double z,
    //  Cube
    glBegin(GL_QUADS);
    //  Front
-
+   glColor3d(.4,.6,.1);
    glNormal3f( 0, 1, 0);
    glVertex3f(-5,0, -5);
    glVertex3f(-3,0, -5);
@@ -238,16 +238,77 @@ static void grass(double x,double y,double z,
    glVertex3f(-1,0, 1);
    
    glNormal3f( 0, 1, 0);
+   glVertex3f(-1,0, 1);
+   glVertex3f(1,0, 1);
+   glVertex3f(1,0, 3);
+   glVertex3f(-1,0, 3);
+   
+   glNormal3f( 0, 1, 0);
+   glVertex3f(-1,0, 3);
+   glVertex3f(1,0, 3);
+   glVertex3f(1,0, 5);
+   glVertex3f(-1,0, 5);
+   
+   glNormal3f( 0, 1, 0);
+   glVertex3f(1,0, -5);
+   glVertex3f(3,0, -5);
+   glVertex3f(3,0, -3);
+   glVertex3f(1,0, -3);
+   
+   glNormal3f( 0, 1, 0);
+   glVertex3f(1,0, -3);
+   glVertex3f(3,0, -3);
+   glVertex3f(3,0, -1);
+   glVertex3f(1,0, -1);
+   
+   glNormal3f( 0, 1, 0);
+   glVertex3f(1,0, -1);
+   glVertex3f(3,0, -1);
+   glVertex3f(3,0, 1);
+   glVertex3f(1,0, 1);
+   
+   glNormal3f( 0, 1, 0);
+   glVertex3f(1,0, 3);
+   glVertex3f(3,0, 3);
+   glVertex3f(3,0, 5);
+   glVertex3f(1,0, 5);
+   
+   glNormal3f( 0, 1, 0);
    glVertex3f(1,0, 1);
    glVertex3f(3,0, 1);
    glVertex3f(3,0, 3);
    glVertex3f(1,0, 3);
    
-     glNormal3f( 0, 1, 0);
+   glNormal3f( 0, 1, 0);
    glVertex3f(1,0, 1);
    glVertex3f(1,0, 3);
    glVertex3f(3,0, 3);
    glVertex3f(3,0, 1);
+   
+   glVertex3f(3,0,-5);
+   glVertex3f(5,0,-5);
+   glVertex3f(5,0,-3);
+   glVertex3f(3,0,-3);
+   
+   glVertex3f(3,0,-3);
+   glVertex3f(5,0,-3);
+   glVertex3f(5,0,-1);
+   glVertex3f(3,0,-1);
+   
+   glVertex3f(3,0,-1);
+   glVertex3f(5,0,-1);
+   glVertex3f(5,0,1);
+   glVertex3f(3,0,1);
+   
+   glVertex3f(3,0,1);
+   glVertex3f(5,0,1);
+   glVertex3f(5,0,3);
+   glVertex3f(3,0,3);
+   
+   glVertex3f(3,0,3);
+   glVertex3f(5,0,3);
+   glVertex3f(5,0,5);
+   glVertex3f(3,0,5);
 
    //  End
    glEnd();
@@ -339,23 +400,25 @@ static void tree(double x,double y,double z,
    glBegin(GL_QUADS);
    glColor3f(0.5f, 0.35f, 0.05f);
    //main tree
-   
+   glNormal3f(0,0,1);
    glVertex3d(wid,0, 0);
    glVertex3d(wid,1.2, 0);
    glVertex3d(-wid, 1.2, 0);
    glVertex3d(-wid, 0, 0);
-  
+   
+   glNormal3f(1,0,0);
    glVertex3d(.2, 0, 0);
    glVertex3d(.2, 1.2, 0);
    glVertex3d(.2, 1.2, -.4);
    glVertex3d(.2, 0, -.4);
    
+   glNormal3f(-1,0,0);
    glVertex3d(-.2, 0, 0);
    glVertex3d(-.2, 1.2, 0);
    glVertex3d(-.2, 1.2, -.4);
    glVertex3d(-.2, 0, -.4);
    
-  
+   glNormal3f(0,0,-1);
    glVertex3d(wid, 0, -.4);
    glVertex3d(wid, 1.2, -.4);
    glVertex3d(-wid, 1.2, -.4);
@@ -427,6 +490,271 @@ static void ball(double x,double y,double z,double r)
    glPopMatrix();
 }
 
+
+/*
+ *  Draw solid house
+ *    at (x,y,z)
+ *    scale by (dx, dy, dz)
+ */
+static void Solidhouse(double x,double y,double z,
+                       double dx,double dy,double dz,
+                       double th)
+{
+	
+   // Dimensions used to size house
+   const double fence =-.7;
+   const double wid= 0.5;
+   const double nose=+2.0;
+   const double cone= .98;
+   const double chimtop = 2;
+   const double chimbot = .8;
+      //  Set specular color to white
+   float white[] = {1,1,1,1};
+   float black[] = {0,0,0,1};
+   glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,shiny);
+   glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
+   glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,black);
+   //  Save transformation
+   glPushMatrix();
+   //  Offset, scale and rotate
+   glTranslated(x,y,z);
+   glRotated(th,0,1,0);
+   glScaled(dx,dy,dz);
+   /*
+   //  Unit vector in direction of flght
+   double D0 = sqrt(dx*dx+dy*dy+dz*dz);
+   double X0 = dx/D0;
+   double Y0 = dy/D0;
+   double Z0 = dz/D0;
+   //  Unit vector in "up" direction
+   double D1 = sqrt(ux*ux+uy*uy+uz*uz);
+   double X1 = ux/D1;
+   double Y1 = uy/D1;
+   double Z1 = uz/D1;
+   //  Cross product gives the third vector
+   double X2 = Y0*Z1-Y1*Z0;
+   double Y2 = Z0*X1-Z1*X0;
+   double Z2 = X0*Y1-X1*Y0;
+   //  Rotation matrix
+   double mat[16];
+   mat[0] = X0;   mat[4] = X1;   mat[ 8] = X2;   mat[12] = 0;
+   mat[1] = Y0;   mat[5] = Y1;   mat[ 9] = Y2;   mat[13] = 0;
+   mat[2] = Z0;   mat[6] = Z1;   mat[10] = Z2;   mat[14] = 0;
+   mat[3] =  0;   mat[7] =  0;   mat[11] =  0;   mat[15] = 1;
+
+   //  Save current transforms
+   glPushMatrix();
+   //  Offset, scale and rotate
+   glTranslated(x,y,z);
+   glMultMatrixd(mat);
+   //  Nose (4 sided)
+   */
+   glColor3f(0,1,1);
+   glBegin(GL_TRIANGLES);
+   glVertex3d(0.0, nose, 0.0);
+   glVertex3d( wid, cone, wid);
+   glVertex3d(-wid, cone, wid);
+
+   glVertex3d( 0.0, nose, 0.0);
+   glVertex3d( wid,cone, -wid);
+   glVertex3d(-wid, cone, -wid);
+
+   glVertex3d( 0.0, nose, 0.0);
+   glVertex3d( wid, cone, wid);
+   glVertex3d( wid,cone, -wid);
+
+   glVertex3d( 0.0, nose, 0.0);
+   glVertex3d(-wid, cone, wid);
+   glVertex3d(-wid,cone, -wid);
+   glEnd();
+   glBegin(GL_QUADS);
+   //back exterior wall
+   glColor3f( 0, 1, 0);
+   glNormal3f(0,0,1);
+   glVertex3d(-wid, 1, wid);
+   glVertex3d(-wid, 0, wid);
+   glVertex3d(wid,  0, wid);
+   glVertex3d(wid, 1, wid);
+   //right exterior wall
+   glColor3f(0, 0, 1);
+   glNormal3f(1,0,0);
+   glVertex3d(wid, 1, -wid);
+   glVertex3d(wid, 0, -wid);
+   glVertex3d(wid, 0, wid);
+   glVertex3d(wid, 1, wid);
+   //front exterior wall
+   glColor3f(1, 0, 0);
+   glNormal3f(0,0,-1);
+   glVertex3d( -wid,1, -wid);
+   glVertex3d(-wid,0, -wid);
+   glVertex3d(wid,0, -wid);
+   glVertex3d(wid,1, -wid);
+   //left exterior wall
+   glColor3f(0, 0, 1);
+   glNormal3f(-1,0,0);
+   glVertex3d(-wid,1, -wid);
+   glVertex3d(-wid,0, -wid);
+   glVertex3d(-wid,0, wid);
+   glVertex3d(-wid,1, wid);
+   //floor
+   //glColor3f(0,.5,.5);
+   //glVertex3d(.5,0,0.5);
+   //glVertex3d(.5,0,-0.5);
+   //glVertex3d(-.5,0,-0.5);
+   //glVertex3d(-.5,0,0.5);
+   //door
+   glColor3f(.5,.35,.5);
+   glNormal3f(0,0,-1);
+   glVertex3d(0.2,0,-.501);
+   glVertex3d(-0.2,0,-.501);
+   glVertex3d(-0.2,.5,-.501);
+   glVertex3d(0.2,.5,-.501);
+   // window left
+   //window right
+   //chimney
+   glColor3f(1,1,1);
+   glVertex3d(-.48,chimbot,0);
+   glVertex3d(-.48,chimtop,0);
+   glVertex3d(-0.2,chimtop,0);
+   glVertex3d(-0.2,chimbot,0);
+   //chimney2
+   glColor3f(1,1,1);
+   glVertex3d(-.48,chimbot,.2);
+   glVertex3d(-.48,chimtop,.2);
+   glVertex3d(-0.2,chimtop,.2);
+   glVertex3d(-0.2,chimbot,.2);
+   //chimney3
+   glColor3f(1,1,1);
+   glVertex3d(-0.48,chimbot,0);
+   glVertex3d(-0.48,chimbot,0.2);
+   glVertex3d(-0.48,chimtop,.2);
+   glVertex3d(-0.48,chimtop,0);
+   //chimney4
+   glColor3f(1,1,1);
+   glVertex3d(-0.2,chimbot,0);
+   glVertex3d(-0.2,chimbot,0.2);
+   glVertex3d(-0.2,chimtop,0.2);
+   glVertex3d(-0.2,chimtop,0);
+   //chimney topper
+   glColor3f(1,1,0);
+   glVertex3d(-0.51,chimtop,0.21);
+   glVertex3d(-0.51,2.1,0.21);
+   glVertex3d(-0.51,2.1,-0.01);
+   glVertex3d(-0.51,chimtop,-0.01);
+   //chimney topper2
+   glColor3f(1,1,0);
+   glVertex3d(-0.51,chimtop,0.21);
+   glVertex3d(-0.19,chimtop,0.21);
+   glVertex3d(-0.19,2.1,0.21);
+   glVertex3d(-0.51,2.1,0.21);
+   //chimney topper3
+   glColor3f(1,1,0);
+   glVertex3d(-0.19,chimtop,0.21); 
+   glVertex3d(-0.19,chimtop,-0.01);
+   glVertex3d(-0.19,2.1,-0.01);
+   glVertex3d(-0.19,2.1,0.21);
+   //chimney topper4
+   glColor3f(1,1,0);
+   glVertex3d(-0.19,chimtop,-.01);
+   glVertex3d(-0.19,2.1,-0.01);
+   glVertex3d(-0.51,2.1,-0.01);
+   glVertex3d(-0.51,chimtop,-0.01);
+   //chimney topper base
+   glColor3f(1,1,0);
+   glVertex3d(-0.51,chimtop,0.21);
+   glVertex3d(-0.51,chimtop,-0.01);
+   glVertex3d(-0.19,chimtop,-0.01);
+   glVertex3d(-0.19,chimtop,0.21);
+   //chimney topper top
+   glColor3f(1,1,0);
+   glVertex3d(-0.51,2.1,0.21);
+   glVertex3d(-0.51,2.1,-0.01);
+   glVertex3d(-0.19,2.1,-0.01);
+   glVertex3d(-0.19,2.1,0.21);
+   //picket
+   glNormal3f(0,0,-1);
+   glColor3f(1,1,1);
+   glVertex3d( -0.5, .3, fence);
+   glVertex3d(-0.5, 0, fence);
+   glVertex3d( -0.4, 0, fence);
+   glVertex3d( -0.4, .3, fence);
+    
+   glColor3f(1,1,1);
+   glVertex3d( -0.3, .3, fence);
+   glVertex3d(-0.3, 0, fence);
+   glVertex3d( -0.2, 0, fence);
+   glVertex3d( -0.2, .3, fence);
+  
+   glColor3f(1,1,1);
+   glVertex3d(-.1, .3, fence);
+   glVertex3d(-.1, 0, fence);
+   glVertex3d(0, 0, fence);
+   glVertex3d(0, .3, fence);
+   
+   glColor3f(1,1,1);
+   glVertex3d( .1, .3, fence);
+   glVertex3d(.1, 0, fence);
+   glVertex3d(.2, 0, fence);
+   glVertex3d(.2, .3, fence);
+   
+   glColor3f(1,1,1);
+   glVertex3d(.3, .3, fence);
+   glVertex3d(.3, 0, fence);
+   glVertex3d(.4, 0, fence);
+   glVertex3d(.4, .3, fence);
+   
+   glColor3f(1,1,1);
+   glVertex3d(.5, .3, fence);
+   glVertex3d(.5, 0, fence);
+   glVertex3d(.6, 0, fence);
+   glVertex3d(.6, .3, fence);
+  
+  
+   glColor3f(1,1,1);
+   glVertex3d(-wid, .24, fence);
+   glVertex3d(-wid, .2, fence);
+   glVertex3d(wid, .2, fence);
+   glVertex3d(wid, .24, fence);
+  
+   glColor3f(1,1,1);
+   glVertex3d(-wid, .11,fence);
+   glVertex3d(-wid, .07,fence);
+   glVertex3d(wid, .07,fence);
+   glVertex3d(wid, .11,fence);
+   glEnd();
+   
+   glBegin(GL_TRIANGLES);
+   glColor3f(1,1,1);
+   glVertex3d( .5,.3, fence);
+   glVertex3d( .55,.35, fence);
+   glVertex3d( .6,.3, fence);
+   
+   glVertex3d(.3,.3, fence);
+   glVertex3d(.35,.35, fence);
+   glVertex3d(.4,.3, fence);
+   
+   glVertex3d(.1,.3, fence);
+   glVertex3d(.15,.35, fence);
+   glVertex3d(.2,.3, fence);
+   
+   glVertex3d(-.1,.3, fence);
+   glVertex3d(-.05,.35, fence);
+   glVertex3d(0,.3, fence);
+   
+   glVertex3d(-.5,.3, fence);
+   glVertex3d(-.45,.35, fence);
+   glVertex3d(-.4,.3, fence);
+   
+   glVertex3d(-.3,.3, fence);
+   glVertex3d(-.25,.35, fence);
+   glVertex3d(-.2,.3, fence);
+   glEnd();
+   // undo transformations
+   glPopMatrix();
+}
+
+
+
 /*
  *  OpenGL (GLUT) calls this routine to display the scene
  */
@@ -492,8 +820,9 @@ void display()
 
    //  Draw scene
    //cube(+1,0,0 , 0.5,0.5,0.5 , 0);
-   tree(+1,0,-2,0.5,0.5,0.5, 0);
-   tree(0,0,-1,1,1,1,0);
+   //tree(+1,0,-2,0.5,0.5,0.5, 0);
+   //tree(0,0,-1,1.5,1.5,1.5,0);
+   Solidhouse(0,0,0,1.5,1.5,1.5,0);
    grass(0,0,0,1,1,1,0);
    //ball(-1,0,0 , 0.5);
 
