@@ -46,9 +46,9 @@ def main(argv):
 				tmp = int(data[i])
 				C.append(tmp)
 				'''
-    P = np.array([.2, .7, -.3])
-    Q = np.array([.4, 1, -.3])
-    R = np.array([.5, 1, -.3])
+    P = np.array([1,0,.3])
+    Q = np.array([1.2,0,.3])
+    R = np.array([1.2,1,0])
     
     print('P={}'.format(P))
     print('Q={}'.format(Q))

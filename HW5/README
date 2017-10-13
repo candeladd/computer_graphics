@@ -1,9 +1,15 @@
-ex13: Lighting
+HomeWork 5
 
-Willem A. (Vlakkies) Schreuder
-CSCI4229/5229 Fall 2017
+Andrew Candelaresi
+CSCI 5229 Fall 2017
 
-Demonstrates basic lighting using a sphere and a cube.
+A simpe scene with houses and a lighting Demonstration.
+to compile use the makefile by typing:
+make
+gcc -O3 -o hw4 hw4.o   -lglut -lGLU -lGL -lm
+
+to clean use the comand:
+make clean
 
 Key bindings
   l          Toggles lighting
@@ -15,8 +21,6 @@ Key bindings
   F1         Toggle smooth/flat shading
   F2         Toggle local viewer mode
   F3         Toggle light distance (1/5)
-  F8         Change ball increment
-  F9         Invert bottom normal
   m          Toggles light movement
   []         Lower/rise light
   p          Toggles ortogonal/perspective projection
@@ -26,3 +30,5 @@ Key bindings
   PgDn/PgUp  Zoom in and out
   0          Reset view angle
   ESC        Exit
+
+this homework took aproximately 12 hours

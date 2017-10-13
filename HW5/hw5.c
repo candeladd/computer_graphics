@@ -11,10 +11,7 @@
  *  e/E        Decrease/increase emitted light
  *  n/N        Decrease/increase shininess
  *  F1         Toggle smooth/flat shading
- *  F2         Toggle local viewer mode
  *  F3         Toggle light distance (1/5)
- *  F8         Change ball increment
- *  F9         Invert bottom normal
  *  m          Toggles light movement
  *  []         Lower/rise light
  *  p          Toggles ortogonal/perspective projection
@@ -31,7 +28,7 @@ int axes=1;       //  Display axes
 int mode=1;       //  Projection mode
 int move=1;       //  Move light
 int th=0;         //  Azimuth of view angle
-int ph=0;         //  Elevation of view angle
+int ph=5;         //  Elevation of view angle
 int fov=55;       //  Field of view (for perspective)
 int light=1;      //  Lighting
 double asp=1;     //  Aspect ratio
@@ -50,78 +47,6 @@ int shininess =   0;  // Shininess (power of two)
 float shiny   =   1;  // Shininess (value)
 int zh        =  90;  // Light azimuth
 float ylight  =   0;  // Elevation of light
-
-/*
- *  Draw a cube
- *     at (x,y,z)
- *     dimentions (dx,dy,dz)
- *     rotated th about the y axis
- */
-static void cube(double x,double y,double z,
-                 double dx,double dy,double dz,
-                 double th)
-{
-   //  Set specular color to white
-   float white[] = {1,1,1,1};
-   float black[] = {0,0,0,1};
-   glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,shiny);
-   glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
-   glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,black);
-   //  Save transformation
-   glPushMatrix();
-   //  Offset, scale and rotate
-   glTranslated(x,y,z);
-   glRotated(th,0,1,0);
-   glScaled(dx,dy,dz);
-   //  Cube
-   glBegin(GL_QUADS);
-   //  Front
-   glColor3f(1,0,0);
-   glNormal3f( 0, 0, 1);
-   glVertex3f(-1,-1, 1);
-   glVertex3f(+1,-1, 1);
-   glVertex3f(+1,+1, 1);
-   glVertex3f(-1,+1, 1);
-   //  Back
-   glColor3f(0,0,1);
-   glNormal3f( 0, 0,-1);
-   glVertex3f(+1,-1,-1);
-   glVertex3f(-1,-1,-1);
-   glVertex3f(-1,+1,-1);
-   glVertex3f(+1,+1,-1);
-   //  Right
-   glColor3f(1,1,0);
-   glNormal3f(+1, 0, 0);
-   glVertex3f(+1,-1,+1);
-   glVertex3f(+1,-1,-1);
-   glVertex3f(+1,+1,-1);
-   glVertex3f(+1,+1,+1);
-   //  Left
-   glColor3f(0,1,0);
-   glNormal3f(-1, 0, 0);
-   glVertex3f(-1,-1,-1);
-   glVertex3f(-1,-1,+1);
-   glVertex3f(-1,+1,+1);
-   glVertex3f(-1,+1,-1);
-   //  Top
-   glColor3f(0,1,1);
-   glNormal3f( 0,+1, 0);
-   glVertex3f(-1,+1,+1);
-   glVertex3f(+1,+1,+1);
-   glVertex3f(+1,+1,-1);
-   glVertex3f(-1,+1,-1);
-   //  Bottom
-   glColor3f(1,0,1);
-   glNormal3f( 0,-one, 0);
-   glVertex3f(-1,-1,-1);
-   glVertex3f(+1,-1,-1);
-   glVertex3f(+1,-1,+1);
-   glVertex3f(-1,-1,+1);
-   //  End
-   glEnd();
-   //  Undo transofrmations
-   glPopMatrix();
-}
 
 /*
  *  Draw vertex in polar coordinates with normal
@@ -148,7 +73,7 @@ static void grass(double x,double y,double z,
    //  Set specular color to white
    float subtlegreen[] = {0,1,0,1};
    float green[] = {0,0,0,1};
-   glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,shiny);
+   glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,.3);
    glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,subtlegreen);
    glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,green);
    //  Save transformation
@@ -326,16 +251,16 @@ static void sphere1(double x,double y,double z,double r)
 {
    int th,ph;
    float yellow[] = {0.0,1.0,0.0,1.0};
-   float Emission[]  = {0.0,0.0,0.01*emission,1.0};
+   float black[] = {0,0,0,1};
 
    //  Save transformation
    glPushMatrix();
    //  Offset and scale
    glTranslated(x,y,z);
    glScaled(r,r,r);
-   glMaterialf(GL_FRONT,GL_SHININESS,shiny);
+   glMaterialf(GL_FRONT,GL_SHININESS,.5);
    glMaterialfv(GL_FRONT,GL_SPECULAR,yellow);
-   glMaterialfv(GL_FRONT,GL_EMISSION,Emission);
+   glMaterialfv(GL_FRONT,GL_EMISSION,black);
    //  Bands of latitude
    for (ph=-90;ph<90;ph+=inc)
    {
@@ -351,13 +276,11 @@ static void sphere1(double x,double y,double z,double r)
    glPopMatrix();
 }
 
-static void tree(double x,double y,double z,
+static void swing_set(double x,double y,double z,
                  double dx,double dy,double dz,
                  double th)
 {
-	
    // Dimensions used to size house
-   const double wid= .2;
    //  Set specular color to white
    float white[] = {1,1,1,1};
    float black[] = {0,0,0,1};
@@ -370,28 +293,285 @@ static void tree(double x,double y,double z,
    glTranslated(x,y,z);
    glRotated(th,0,1,0);
    glScaled(dx,dy,dz);
-   /*
-   //  Unit vector in direction of flght
-   double D0 = sqrt(dx*dx+dy*dy+dz*dz);
-   double X0 = dx/D0;
-   double Y0 = dy/D0;
-   double Z0 = dz/D0;
-   //  Unit vector in "up" direction
-   double D1 = sqrt(ux*ux+uy*uy+uz*uz);
-   double X1 = ux/D1;
-   double Y1 = uy/D1;
-   double Z1 = uz/D1;
-   //  Cross product gives the third vector
-   double X2 = Y0*Z1-Y1*Z0;
-   double Y2 = Z0*X1-Z1*X0;
-   double Z2 = X0*Y1-X1*Y0;
-   //  Rotation matrix
-   double mat[16];
-   mat[0] = X0;   mat[4] = X1;   mat[ 8] = X2;   mat[12] = 0;
-   mat[1] = Y0;   mat[5] = Y1;   mat[ 9] = Y2;   mat[13] = 0;
-   mat[2] = Z0;   mat[6] = Z1;   mat[10] = Z2;   mat[14] = 0;
-   mat[3] =  0;   mat[7] =  0;   mat[11] =  0;   mat[15] = 1;
-   */
+   // front board
+   glBegin(GL_QUADS);
+   glColor3d(1,1,1);
+   glNormal3d(0, 0.28734789,  0.95782629);
+   glVertex3d(0,0,.4);
+   glVertex3d(.2,0,.4);
+   glVertex3d(.2,1,.1);
+   glVertex3d(0,1,.1);
+   //back board
+   glColor3d(1,1,1);
+   glNormal3d(0, -0.28734789, -0.95782629);
+   glVertex3d(0,0,.3);
+   glVertex3d(.2,0,.3);
+   glVertex3d(.2,1,0);
+   glVertex3d(0,1,0);
+   //left side
+   glColor3d(1,1,1);
+   glNormal3d(-1,0,0);
+   glVertex3d(0,0,.3);
+   glVertex3d(0,1,0);
+   glVertex3d(0,1,.1);
+   glVertex3d(0,0,.4);
+   //right side
+   glColor3d(1,1,1);
+   glNormal3d(1,0,0);
+   glVertex3d(.2,0,.3);
+   glVertex3d(.2,1,0);
+   glVertex3d(.2,1,.1);
+   glVertex3d(.2,0,.4);
+   // front board
+   glColor3d(1,1,1);
+   glNormal3d(0, 0.28734789, -0.95782629);
+   glVertex3d(0,0,-.4);
+   glVertex3d(.2,0,-.4);
+   glVertex3d(.2,1,-.1);
+   glVertex3d(0,1,-.1);
+   //back board
+   glColor3d(1,1,1);
+   glNormal3d(0, -0.28734789, 0.95782629);
+   glVertex3d(0,0,-.3);
+   glVertex3d(.2,0,-.3);
+   glVertex3d(.2,1,0);
+   glVertex3d(0,1,0);
+   //left side
+   glColor3d(1,1,1);
+   glNormal3d(-1,0,0);
+   glVertex3d(0,0,-.3);
+   glVertex3d(0,1,0);
+   glVertex3d(0,1,-.1);
+   glVertex3d(0,0,-.4);
+   //right side
+   glColor3d(1,1,1);
+   glNormal3d(1,0,0);
+   glVertex3d(.2,0,-.3);
+   glVertex3d(.2,1,0);
+   glVertex3d(.2,1,-.1);
+   glVertex3d(.2,0,-.4);
+   //far out**************   
+   glColor3d(1,1,1);
+   glNormal3d(0, 0.28734789, 0.95782629);
+   glVertex3d(1,0,.4);
+   glVertex3d(1.2,0,.4);
+   glVertex3d(1.2,1,.1);
+   glVertex3d(1,1,.1);
+   //back board
+   glColor3d(1,1,1);
+   glNormal3d(0, -0.28734789, -0.95782629);
+   glVertex3d(1,0,.3);
+   glVertex3d(1.2,0,.3);
+   glVertex3d(1.2,1,0);
+   glVertex3d(1,1,0);
+   //left side
+   glColor3d(1,1,1);
+   glNormal3d(-1,0,0);
+   glVertex3d(1,0,.3);
+   glVertex3d(1,1,0);
+   glVertex3d(1,1,.1);
+   glVertex3d(1,0,.4);
+   //right side
+   glColor3d(1,1,1);
+   glNormal3d(1,0,0);
+   glVertex3d(1.2,0,.3);
+   glVertex3d(1.2,1,0);
+   glVertex3d(1.2,1,.1);
+   glVertex3d(1.2,0,.4);
+   // front board
+   glColor3d(1,1,1);
+   glNormal3d(0, 0.28734789, -0.95782629);
+   glVertex3d(1,0,-.4);
+   glVertex3d(1.2,0,-.4);
+   glVertex3d(1.2,1,-.1);
+   glVertex3d(1,1,-.1);
+   //back board
+   glColor3d(1,1,1);
+   glNormal3d(0, -0.28734789, 0.95782629);
+   glVertex3d(1,0,-.3);
+   glVertex3d(1.2,0,-.3);
+   glVertex3d(1.2,1,0);
+   glVertex3d(1,1,0);
+   //left side
+   glColor3d(1,1,1);
+   glNormal3d(-1,0,0);
+   glVertex3d(1,0,-.3);
+   glVertex3d(1,1,0);
+   glVertex3d(1,1,-.1);
+   glVertex3d(1,0,-.4);
+   //right side
+   glColor3d(1,1,1);
+   glNormal3d(1,0,0);
+   glVertex3d(1.2,0,-.3);
+   glVertex3d(1.2,1,0);
+   glVertex3d(1.2,1,-.1);
+   glVertex3d(1.2,0,-.4);
+   //top beam
+   glColor3d(1,1,1);
+   glNormal3d(0,0,1);
+   glVertex3d(0,.8,.1);
+   glVertex3d(0,1,.1);
+   glVertex3d(1.2,1,.1);
+   glVertex3d(1.2,.8,.1);
+   //back top beam
+   glColor3d(1,1,1);
+   glNormal3d(0,0,-1);
+   glVertex3d(0,.8,-.1);
+   glVertex3d(0,1,-.1);
+   glVertex3d(1.2,1,-.1);
+   glVertex3d(1.2,.8,-.1);
+   //top top beam
+   glColor3d(1,1,1);
+   glNormal3d(0,1,0);
+   glVertex3d(0,1,-.1);
+   glVertex3d(1.2,1,-.1);
+   glVertex3d(1.2,1,.1);
+   glVertex3d(0,1,.1);
+   //bottom top beam
+   glColor3d(1,1,1);
+   glNormal3d(0,-1,0);
+   glVertex3d(0,.8,-.1);
+   glVertex3d(1.2,.8,-.1);
+   glVertex3d(1.2,.8,.1);
+   glVertex3d(0,.8,.1);
+   //side caps beam
+   glColor3d(1,1,1);
+   glNormal3d(-1,0,0);
+   glVertex3d(0.001,.8,-.1);
+   glVertex3d(0.001,1,-.1);
+   glVertex3d(0.001,1,.1);
+   glVertex3d(0.001,.8,.1);
+   //side caps beam
+   glColor3d(1,1,1);
+   glNormal3d(1,0,0);
+   glVertex3d(1.201,.8,-.1);
+   glVertex3d(1.201,1,-.1);
+   glVertex3d(1.201,1,.1);
+   glVertex3d(1.201,.8,.1);
+   //swing. top
+   glColor3d(1,1,1);
+   glNormal3d(0,1,0);
+   glVertex3d(.5,.2,-.05);
+   glVertex3d(.7,.2,-.05);
+   glVertex3d(.7,.2,.05);
+   glVertex3d(.5,.2,.05);
+   //swing bot
+   glNormal3d(0,-1,0);
+   glVertex3d(.5,.15,-.05);
+   glVertex3d(.7,.15,-.05);
+   glVertex3d(.7,.15,.05);
+   glVertex3d(.5,.15,.05);
+   //swing front
+   glNormal3d(0,0,1);
+   glVertex3d(.5,.15,.05);
+   glVertex3d(.5,.2,.05);
+   glVertex3d(.7,.2,.05);
+   glVertex3d(.7,.15,.05);
+   //swing back
+   glNormal3d(0,0,-1);
+   glVertex3d(.5,.15,-.05);
+   glVertex3d(.5,.2,-.05);
+   glVertex3d(.7,.2,-.05);
+   glVertex3d(.7,.15,-.05);
+   //swing left
+   glNormal3d(-1,0,0);
+   glVertex3d(.5,.15,-.05);
+   glVertex3d(.5,.2,-.05);
+   glVertex3d(.5,.2,.05);
+   glVertex3d(.5,.15,.05);
+   //swing right
+   glNormal3d(1,0,0);
+   glVertex3d(.7,.15,-.05);
+   glVertex3d(.7,.2,-.05);
+   glVertex3d(.7,.2,.05);
+   glVertex3d(.7,.15,.05);
+   glEnd();
+   glBegin(GL_LINES);
+   glNormal3d(0,0,-1);
+   glVertex3d(.5,1,0);
+   glVertex3d(.5,.17,0);
+   glVertex3d(.7,1,0);
+   glVertex3d(.7,.17,0);
+   glEnd();
+   // undo transformations
+   glPopMatrix();
+   
+}
+
+static void shrub(double x,double y,double z,
+                 double dx,double dy,double dz,
+                 double th)
+{
+	
+   // Dimensions used to size house
+   //  Set specular color to white
+   float white[] = {.2,.7,.2,1};
+   float black[] = {0,0,0,1};
+   glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,.2);
+   glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
+   glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,black);
+   //  Save transformation
+   glPushMatrix();
+   //  Offset, scale and rotate
+   glTranslated(x,y,z);
+   glRotated(th,0,1,0);
+   glScaled(dx,dy,dz);
+   // draw a square tree
+   glBegin(GL_QUADS);
+   glColor3f(0.5f, 0.35f, 0.05f);
+   //main tree
+   glNormal3f(0.0, -0.70710678, -0.70710678);
+   glVertex3d(0,0, 0);
+   glVertex3d(.2, 0, 0);
+   glVertex3d(.4, .2, -.2);
+   glVertex3d(-.2, .2, -.2);
+   
+   glNormal3f(0.70710678,  -0.70710678, 0.0);
+   glVertex3d(.2,0, 0);
+   glVertex3d(.2, 0, .2);
+   glVertex3d(.4, .2, .4);
+   glVertex3d(.4, .2, -.2);
+   
+   glNormal3f(0.0, -0.70710678, 0.70710678);
+   glVertex3d(.2,0, .2);
+   glVertex3d(0, 0, .2);
+   glVertex3d(-.2, .2, .4);
+   glVertex3d(.4, .2, .4);
+   
+   glNormal3f(-0.70710678, -0.70710678, 0.0);
+   glVertex3d(0,0, .2);
+   glVertex3d(0, 0, 0);
+   glVertex3d(-.2, .2, -.2);
+   glVertex3d(-.2, .2, .4);
+   
+   glEnd();
+   glColor3d(.2,.8,0);
+   glScaled(1.5*dx, dy,2*dz);
+   sphere1(.05, .63,.05,.55);
+   // undo transformations
+   glPopMatrix();
+}
+
+
+static void tree(double x,double y,double z,
+                 double dx,double dy,double dz,
+                 double th)
+{
+	
+   // Dimensions used to size house
+   const double wid= .2;
+   //  Set specular color to white
+   float white[] = {1,1,1,1};
+   float black[] = {0,0,0,1};
+   glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,.2);
+   glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
+   glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,black);
+   //  Save transformation
+   glPushMatrix();
+   //  Offset, scale and rotate
+   glTranslated(x,y,z);
+   glRotated(th,0,1,0);
+   glScaled(dx,dy,dz);
    //  Save current transforms
    //  Offset, scale and rotate
    //glTranslated(x,y,z);
@@ -500,7 +680,7 @@ static void ball(double x,double y,double z,double r)
  */
 static void Solidhouse(double x,double y,double z,
                        double dx,double dy,double dz,
-                       double th)
+                       double th, double sh)
 {
 	
    // Dimensions used to size house
@@ -520,37 +700,11 @@ static void Solidhouse(double x,double y,double z,
    glPushMatrix();
    //  Offset, scale and rotate
    glTranslated(x,y,z);
+   glRotated(sh,0,1,0);
    glRotated(th,0,1,0);
    glScaled(dx,dy,dz);
-   /*
-   //  Unit vector in direction of flght
-   double D0 = sqrt(dx*dx+dy*dy+dz*dz);
-   double X0 = dx/D0;
-   double Y0 = dy/D0;
-   double Z0 = dz/D0;
-   //  Unit vector in "up" direction
-   double D1 = sqrt(ux*ux+uy*uy+uz*uz);
-   double X1 = ux/D1;
-   double Y1 = uy/D1;
-   double Z1 = uz/D1;
-   //  Cross product gives the third vector
-   double X2 = Y0*Z1-Y1*Z0;
-   double Y2 = Z0*X1-Z1*X0;
-   double Z2 = X0*Y1-X1*Y0;
-   //  Rotation matrix
-   double mat[16];
-   mat[0] = X0;   mat[4] = X1;   mat[ 8] = X2;   mat[12] = 0;
-   mat[1] = Y0;   mat[5] = Y1;   mat[ 9] = Y2;   mat[13] = 0;
-   mat[2] = Z0;   mat[6] = Z1;   mat[10] = Z2;   mat[14] = 0;
-   mat[3] =  0;   mat[7] =  0;   mat[11] =  0;   mat[15] = 1;
-
-   //  Save current transforms
-   glPushMatrix();
-   //  Offset, scale and rotate
-   glTranslated(x,y,z);
-   glMultMatrixd(mat);
    //  Nose (4 sided)
-   */
+ 
    glColor3f(0,1,1);
    glBegin(GL_TRIANGLES);
    glNormal3d(0.0, 0.4472136, 0.89442719);
@@ -836,12 +990,14 @@ void display()
 
    //  Draw scene
    //cube(+1,0,0 , 0.5,0.5,0.5 , 0);
-   //tree(+1,0,-2,0.5,0.5,0.5, 0);
+   swing_set(.5,0,-.6,1,1,1,0);
+   tree(+1,0,-2,1,1,1, 0);
    tree(-3,0,-1,1.5,1.5,1.5,0);
-   Solidhouse(1,0,1,1.5,1.5,1.5,0);
-   Solidhouse(-1,0,1,2,1,1,0);
+   tree(-3,0,-1,1.5,1.5,1.5,0);
+   shrub(2.5,0,2.5,1,1,1,0);
+   Solidhouse(1,0,1,1.5,1.5,1.5,0,180);
+   Solidhouse(-2,0,1,2.5,1,1,0, 90);
    grass(0,0,0,1,1,1,0);
-   //ball(-1,0,0 , 0.5);
 
    //  Draw axes - no lighting from here on
    glDisable(GL_LIGHTING);
@@ -872,7 +1028,7 @@ void display()
    if (light)
    {
       glWindowPos2i(5,45);
-      Print("Model=%s LocalViewer=%s Distance=%d Elevation=%.1f",smooth?"Smooth":"Flat",local?"On":"Off",distance,ylight);
+      Print("Model=%s Distance=%d Elevation=%.1f",smooth?"Smooth":"Flat",distance,ylight);
       glWindowPos2i(5,25);
       Print("Ambient=%d  Diffuse=%d Specular=%d Emission=%d Shininess=%.0f",ambient,diffuse,specular,emission,shiny);
    }
@@ -921,17 +1077,9 @@ void special(int key,int x,int y)
    //  Smooth color model
    else if (key == GLUT_KEY_F1)
       smooth = 1-smooth;
-   //  Local Viewer
-   else if (key == GLUT_KEY_F2)
-      local = 1-local;
    else if (key == GLUT_KEY_F3)
       distance = (distance==1) ? 5 : 1;
-   //  Toggle ball increment
-   else if (key == GLUT_KEY_F8)
-      inc = (inc==10)?3:10;
-   //  Flip sign
-   else if (key == GLUT_KEY_F9)
-      one = -one;
+
    //  Keep angles to +/-360 degrees
    th %= 360;
    ph %= 360;
@@ -1037,7 +1185,7 @@ int main(int argc,char* argv[])
    //  Request double buffered, true color window with Z buffering at 600x600
    glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
    glutInitWindowSize(700,700);
-   glutCreateWindow("Andrew Candelaresi HW4");
+   glutCreateWindow("Andrew Candelaresi HW5");
    //  Set callbacks
    glutDisplayFunc(display);
    glutReshapeFunc(reshape);
