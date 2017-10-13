@@ -425,23 +425,25 @@ static void tree(double x,double y,double z,
    glVertex3d(-wid, 0, -.4);
    
    //branch
-   
+   glNormal3d(0,0,1);
    glVertex3d(.2, .7, 0);
    glVertex3d(.4, 1, 0);
    glVertex3d(.5, 1, 0);
    glVertex3d(.2,.6, 0);
    
-   
+   glNormal3d(0.8,  -0.6,  0.0);
    glVertex3d(.2, .6, 0);
    glVertex3d(.5, 1,0);
    glVertex3d(.5, 1,-.3);
    glVertex3d(.2, .6,-.3);
    
+   glNormal3d(-0.83205029, 0.5547002, 0.0);        
    glVertex3d(.2,.7, 0);
    glVertex3d(.4, 1, 0);
    glVertex3d(.4, 1,-.3);
    glVertex3d(.2, .7,-.3);
    
+   glNormal3d(0,0,-1);
    glVertex3d(.2, .7, -.3);
    glVertex3d(.4, 1, -.3);
    glVertex3d(.5, 1, -.3);
@@ -551,18 +553,22 @@ static void Solidhouse(double x,double y,double z,
    */
    glColor3f(0,1,1);
    glBegin(GL_TRIANGLES);
+   glNormal3d(0.0, 0.4472136, 0.89442719);
    glVertex3d(0.0, nose, 0.0);
    glVertex3d( wid, cone, wid);
    glVertex3d(-wid, cone, wid);
-
+   
+   glNormal3d(0.0, 0.4472136, -0.89442719);
    glVertex3d( 0.0, nose, 0.0);
    glVertex3d( wid,cone, -wid);
    glVertex3d(-wid, cone, -wid);
 
+   glNormal3d( 0.89442719, 0.4472136, 0.0);
    glVertex3d( 0.0, nose, 0.0);
    glVertex3d( wid, cone, wid);
-   glVertex3d( wid,cone, -wid);
+   glVertex3d( wid, cone, -wid);
 
+   glNormal3d(-0.89442719, 0.4472136, 0.0);
    glVertex3d( 0.0, nose, 0.0);
    glVertex3d(-wid, cone, wid);
    glVertex3d(-wid,cone, -wid);
@@ -613,60 +619,70 @@ static void Solidhouse(double x,double y,double z,
    //window right
    //chimney
    glColor3f(1,1,1);
+   glNormal3d(0,0,-1);
    glVertex3d(-.48,chimbot,0);
    glVertex3d(-.48,chimtop,0);
    glVertex3d(-0.2,chimtop,0);
    glVertex3d(-0.2,chimbot,0);
    //chimney2
    glColor3f(1,1,1);
+   glNormal3d(0,0,1);
    glVertex3d(-.48,chimbot,.2);
    glVertex3d(-.48,chimtop,.2);
    glVertex3d(-0.2,chimtop,.2);
    glVertex3d(-0.2,chimbot,.2);
    //chimney3
    glColor3f(1,1,1);
+   glNormal3d(-1,0,0);
    glVertex3d(-0.48,chimbot,0);
    glVertex3d(-0.48,chimbot,0.2);
    glVertex3d(-0.48,chimtop,.2);
    glVertex3d(-0.48,chimtop,0);
    //chimney4
    glColor3f(1,1,1);
+   glNormal3d(1,0,0);
    glVertex3d(-0.2,chimbot,0);
    glVertex3d(-0.2,chimbot,0.2);
    glVertex3d(-0.2,chimtop,0.2);
    glVertex3d(-0.2,chimtop,0);
    //chimney topper
    glColor3f(1,1,0);
+   glNormal3d(-1,0,0);
    glVertex3d(-0.51,chimtop,0.21);
    glVertex3d(-0.51,2.1,0.21);
    glVertex3d(-0.51,2.1,-0.01);
    glVertex3d(-0.51,chimtop,-0.01);
    //chimney topper2
    glColor3f(1,1,0);
+   glNormal3d(0,0,1);
    glVertex3d(-0.51,chimtop,0.21);
    glVertex3d(-0.19,chimtop,0.21);
    glVertex3d(-0.19,2.1,0.21);
    glVertex3d(-0.51,2.1,0.21);
    //chimney topper3
    glColor3f(1,1,0);
+   glNormal3d(1,0,0);
    glVertex3d(-0.19,chimtop,0.21); 
    glVertex3d(-0.19,chimtop,-0.01);
    glVertex3d(-0.19,2.1,-0.01);
    glVertex3d(-0.19,2.1,0.21);
    //chimney topper4
    glColor3f(1,1,0);
+   glNormal3d(0,0,-1);
    glVertex3d(-0.19,chimtop,-.01);
    glVertex3d(-0.19,2.1,-0.01);
    glVertex3d(-0.51,2.1,-0.01);
    glVertex3d(-0.51,chimtop,-0.01);
    //chimney topper base
    glColor3f(1,1,0);
+   glNormal3d(0,-1,0);
    glVertex3d(-0.51,chimtop,0.21);
    glVertex3d(-0.51,chimtop,-0.01);
    glVertex3d(-0.19,chimtop,-0.01);
    glVertex3d(-0.19,chimtop,0.21);
    //chimney topper top
    glColor3f(1,1,0);
+   glNormal3d(0,1,0);
    glVertex3d(-0.51,2.1,0.21);
    glVertex3d(-0.51,2.1,-0.01);
    glVertex3d(-0.19,2.1,-0.01);
@@ -821,8 +837,9 @@ void display()
    //  Draw scene
    //cube(+1,0,0 , 0.5,0.5,0.5 , 0);
    //tree(+1,0,-2,0.5,0.5,0.5, 0);
-   //tree(0,0,-1,1.5,1.5,1.5,0);
-   Solidhouse(0,0,0,1.5,1.5,1.5,0);
+   tree(-3,0,-1,1.5,1.5,1.5,0);
+   Solidhouse(1,0,1,1.5,1.5,1.5,0);
+   Solidhouse(-1,0,1,2,1,1,0);
    grass(0,0,0,1,1,1,0);
    //ball(-1,0,0 , 0.5);
 

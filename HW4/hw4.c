@@ -612,7 +612,7 @@ static void Solidhouse2(double x,double y,double z,
 {
    const double wid= 0.5;
    const double nose=+2.0;
-   const double cone= .98;
+   const double cone= 1;
    const double chimtop = 2;
    const double chimbot = .8;
    //  Save transformation

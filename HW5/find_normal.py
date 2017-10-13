@@ -46,23 +46,23 @@ def main(argv):
 				tmp = int(data[i])
 				C.append(tmp)
 				'''
-    P = np.array([2,0,0])
-    Q = np.array([1,.5,.5])
-    R = np.array([1,-.5,.5])
+    P = np.array([.2, .7, -.3])
+    Q = np.array([.4, 1, -.3])
+    R = np.array([.5, 1, -.3])
     
     print('P={}'.format(P))
     print('Q={}'.format(Q))
     print('R={}'.format(R))
     PQ = np.subtract(Q, P)
     PR = np.subtract(R,P)
-    print(PQ)
-    print(PR)
+    print('PQ {}'.format(PQ))
+    print('PR {}'.format(PR))
     normal = np.cross(PQ,PR)
     print('the normal is {}'.format(normal))
     n = LA.norm(normal)
     new_norm = normal/n
     normal = normal/LA.norm(normal)
-    print ('are these {} the same {}'.format(new_norm, normal))
+    print ('unit vector {}'.format(normal))
 
 if __name__ =='__main__':
 	main(sys.argv)
