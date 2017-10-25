@@ -1,0 +1,34 @@
+HomeWork 5
+
+Andrew Candelaresi
+CSCI 5229 Fall 2017
+
+A simpe scene with houses and a lighting Demonstration.
+to compile use the makefile by typing:
+make
+gcc -O3 -o hw4 hw4.o   -lglut -lGLU -lGL -lm
+
+to clean use the comand:
+make clean
+
+Key bindings
+  l          Toggles lighting
+  a/A        Decrease/increase ambient light
+  d/D        Decrease/increase diffuse light
+  s/S        Decrease/increase specular light
+  e/E        Decrease/increase emitted light
+  n/N        Decrease/increase shininess
+  F1         Toggle smooth/flat shading
+  F2         Toggle local viewer mode
+  F3         Toggle light distance (1/5)
+  m          Toggles light movement
+  []         Lower/rise light
+  p          Toggles ortogonal/perspective projection
+  +/-        Change field of view of perspective
+  x          Toggle axes
+  arrows     Change view angle
+  PgDn/PgUp  Zoom in and out
+  0          Reset view angle
+  ESC        Exit
+
+this homework took aproximately 12 hours

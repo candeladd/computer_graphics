@@ -1,5 +1,5 @@
-# Andrew Candelaresi HW4
-EXE=hw4
+# Example 25
+EXE=ex25
 
 # Main target
 all: $(EXE)
@@ -20,8 +20,21 @@ CFLG=-O3 -Wall
 LIBS=-lglut -lGLU -lGL -lm
 endif
 #  OSX/Linux/Unix/Solaris
-CLEAN=rm -f $(EXE) *.o *.a 
+CLEAN=rm -f $(EXE) *.o *.a
 endif
+
+# Dependencies
+ex25.o: ex25.c CSCIx229.h F16.h
+fatal.o: fatal.c CSCIx229.h
+loadtexbmp.o: loadtexbmp.c CSCIx229.h
+print.o: print.c CSCIx229.h
+project.o: project.c CSCIx229.h
+errcheck.o: errcheck.c CSCIx229.h
+object.o: object.c CSCIx229.h
+
+#  Create archive
+CSCIx229.a:fatal.o loadtexbmp.o print.o project.o errcheck.o object.o
+	ar -rcs $@ $^
 
 # Compile rules
 .c.o:
@@ -30,7 +43,7 @@ endif
 	g++ -c $(CFLG) $<
 
 #  Link
-hw4:hw4.o
+ex25:ex25.o CSCIx229.a
 	gcc -O3 -o $@ $^   $(LIBS)
 
 #  Clean
