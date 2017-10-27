@@ -267,7 +267,7 @@ static void sphere1(double x,double y,double z,double r)
 
 static void swing_set(double x,double y,double z,
                  double dx,double dy,double dz,
-                 double th)
+                 double th, unsigned int swingtex)
 {
    // Dimensions used to size house
    //  Set specular color to white
@@ -276,6 +276,9 @@ static void swing_set(double x,double y,double z,
    glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,shiny);
    glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
    glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,black);
+   glEnable(GL_TEXTURE_2D);
+   glTexEnvi(GL_TEXTURE_ENV , GL_TEXTURE_ENV_MODE , GL_MODULATE);
+   glBindTexture(GL_TEXTURE_2D, swingtex);
    //  Save transformation
    glPushMatrix();
    //  Offset, scale and rotate
@@ -286,194 +289,194 @@ static void swing_set(double x,double y,double z,
    glBegin(GL_QUADS);
    glColor3d(1,1,1);
    glNormal3d(0, 0.28734789,  0.95782629);
-   glVertex3d(0,0,.4);
-   glVertex3d(.2,0,.4);
-   glVertex3d(.2,1,.1);
-   glVertex3d(0,1,.1);
+   glTexCoord2f(0.0, 0.0); glVertex3d(0,0,.4);
+   glTexCoord2f(1.0, 0.0); glVertex3d(.2,0,.4);
+   glTexCoord2f(1.0, 1.0); glVertex3d(.2,1,.1);
+   glTexCoord2f(0.0, 1.0); glVertex3d(0,1,.1);
    //back board
    glColor3d(1,1,1);
    glNormal3d(0, -0.28734789, 0.95782629);
-   glVertex3d(0,0,.3);
-   glVertex3d(.2,0,.3);
-   glVertex3d(.2,1,0);
-   glVertex3d(0,1,0);
+   glTexCoord2f(0.0, 0.0); glVertex3d(0,0,.3);
+   glTexCoord2f(1.0, 0.0); glVertex3d(.2,0,.3);
+   glTexCoord2f(1.0, 1.0); glVertex3d(.2,1,0);
+   glTexCoord2f(0.0, 1.0); glVertex3d(0,1,0);
    //left side
    glColor3d(1,1,1);
    glNormal3d(1,0,0);
-   glVertex3d(0,0,.3);
-   glVertex3d(0,1,0);
-   glVertex3d(0,1,.1);
-   glVertex3d(0,0,.4);
+   glTexCoord2f(0.0, 0.0); glVertex3d(0,0,.3);
+   glTexCoord2f(1.0, 0.0); glVertex3d(0,1,0);
+   glTexCoord2f(1.0, 1.0); glVertex3d(0,1,.1);
+   glTexCoord2f(0.0, 1.0); glVertex3d(0,0,.4);
    //right side
    glColor3d(1,1,1);
    glNormal3d(1,0,0);
-   glVertex3d(.2,0,.3);
-   glVertex3d(.2,1,0);
-   glVertex3d(.2,1,.1);
-   glVertex3d(.2,0,.4);
+   glTexCoord2f(0.0, 0.0); glVertex3d(.2,0,.3);
+   glTexCoord2f(1.0, 0.0); glVertex3d(.2,1,0);
+   glTexCoord2f(1.0, 1.0); glVertex3d(.2,1,.1);
+   glTexCoord2f(0.0, 1.0); glVertex3d(.2,0,.4);
    // front board
    glColor3d(1,1,1);
    glNormal3d(0, 0.28734789, 0.95782629);
-   glVertex3d(0,0,-.4);
-   glVertex3d(.2,0,-.4);
-   glVertex3d(.2,1,-.1);
-   glVertex3d(0,1,-.1);
+   glTexCoord2f(0.0, 0.0); glVertex3d(0,0,-.4);
+   glTexCoord2f(0.0, 1.0); glVertex3d(.2,0,-.4);
+   glTexCoord2f(1.0, 1.0); glVertex3d(.2,1,-.1);
+   glTexCoord2f(1.0, 0.0); glVertex3d(0,1,-.1);
    //back board
    glColor3d(1,1,1);
    glNormal3d(0, -0.28734789, 0.95782629);
-   glVertex3d(0,0,-.3);
-   glVertex3d(.2,0,-.3);
-   glVertex3d(.2,1,0);
-   glVertex3d(0,1,0);
+   glTexCoord2f(0.0, 0.0); glVertex3d(0,0,-.3);
+   glTexCoord2f(1.0, 0.0); glVertex3d(.2,0,-.3);
+   glTexCoord2f(1.0, 1.0); glVertex3d(.2,1,0);
+   glTexCoord2f(0.0, 1.0); glVertex3d(0,1,0);
    //left side
    glColor3d(1,1,1);
    glNormal3d(-1,0,0);
-   glVertex3d(0,0,-.3);
-   glVertex3d(0,1,0);
-   glVertex3d(0,1,-.1);
-   glVertex3d(0,0,-.4);
+   glTexCoord2f(0.0, 0.0); glVertex3d(0,0,-.3);
+   glTexCoord2f(1.0, 0.0); glVertex3d(0,1,0);
+   glTexCoord2f(1.0, 1.0); glVertex3d(0,1,-.1);
+   glTexCoord2f(0.0, 1.0); glVertex3d(0,0,-.4);
    //right side
    glColor3d(1,1,1);
    glNormal3d(-1,0,0);
-   glVertex3d(.2,0,-.3);
-   glVertex3d(.2,1,0);
-   glVertex3d(.2,1,-.1);
-   glVertex3d(.2,0,-.4);
+   glTexCoord2f(0.0, 0.0); glVertex3d(.2,0,-.3);
+   glTexCoord2f(1.0, 0.0); glVertex3d(.2,1,0);
+   glTexCoord2f(1.0, 1.0); glVertex3d(.2,1,-.1);
+   glTexCoord2f(0.0, 1.0); glVertex3d(.2,0,-.4);
    //far out**************   
    glColor3d(1,1,1);
    glNormal3d(0, 0.28734789, 0.95782629);
-   glVertex3d(1,0,.4);
-   glVertex3d(1.2,0,.4);
-   glVertex3d(1.2,1,.1);
-   glVertex3d(1,1,.1);
+   glTexCoord2f(0.0, 0.0); glVertex3d(1,0,.4);
+   glTexCoord2f(0.0, 1.0); glVertex3d(1.2,0,.4);
+   glTexCoord2f(1.0, 1.0); glVertex3d(1.2,1,.1);
+   glTexCoord2f(1.0, 0.0); glVertex3d(1,1,.1);
    //back board
    glColor3d(1,1,1);
    glNormal3d(0, -0.28734789, 0.95782629);
-   glVertex3d(1,0,.3);
-   glVertex3d(1.2,0,.3);
-   glVertex3d(1.2,1,0);
-   glVertex3d(1,1,0);
+   glTexCoord2f(0.0, 0.0); glVertex3d(1,0,.3);
+   glTexCoord2f(1.0, 0.0); glVertex3d(1.2,0,.3);
+   glTexCoord2f(1.0, 1.0); glVertex3d(1.2,1,0);
+   glTexCoord2f(0.0, 1.0); glVertex3d(1,1,0);
    //left side
    glColor3f(1,1,1);
    glNormal3d(1,0,0);
-   glVertex3d(1,0,.3);
-   glVertex3d(1,1,0);
-   glVertex3d(1,1,.1);
-   glVertex3d(1,0,.4);
+   glTexCoord2f(0.0, 0.0); glVertex3d(1,0,.3);
+   glTexCoord2f(1.0, 0.0); glVertex3d(1,1,0);
+   glTexCoord2f(1.0, 1.0); glVertex3d(1,1,.1);
+   glTexCoord2f(0.0, 1.0); glVertex3d(1,0,.4);
    //right side
    glColor3f(1,1,1);
    glNormal3d(1,0,0);
-   glVertex3d(1.2,0,.3);
-   glVertex3d(1.2,1,0);
-   glVertex3d(1.2,1,.1);
-   glVertex3d(1.2,0,.4);
+   glTexCoord2f(0.0, 0.0); glVertex3d(1.2,0,.3);
+   glTexCoord2f(1.0, 0.0); glVertex3d(1.2,1,0);
+   glTexCoord2f(1.0, 1.0); glVertex3d(1.2,1,.1);
+   glTexCoord2f(0.0, 1.0); glVertex3d(1.2,0,.4);
    // front board
    glColor3d(1,1,1);
    glNormal3d(0, 0.28734789, 0.95782629);
-   glVertex3d(1,0,-.4);
-   glVertex3d(1.2,0,-.4);
-   glVertex3d(1.2,1,-.1);
-   glVertex3d(1,1,-.1);
+   glTexCoord2f(0.0, 0.0); glVertex3d(1,0,-.4);
+   glTexCoord2f(1.0, 0.0); glVertex3d(1.2,0,-.4);
+   glTexCoord2f(1.0, 1.0); glVertex3d(1.2,1,-.1);
+   glTexCoord2f(0.0, 1.0); glVertex3d(1,1,-.1);
    //back board
    glColor3d(1,1,1);
    glNormal3d(0, -0.28734789, 0.95782629);
-   glVertex3d(1,0,-.3);
-   glVertex3d(1.2,0,-.3);
-   glVertex3d(1.2,1,0);
-   glVertex3d(1,1,0);
+   glTexCoord2f(0.0, 0.0); glVertex3d(1,0,-.3);
+   glTexCoord2f(1.0, 0.0); glVertex3d(1.2,0,-.3);
+   glTexCoord2f(1.0, 1.0); glVertex3d(1.2,1,0);
+   glTexCoord2f(0.0, 1.0); glVertex3d(1,1,0);
    //left side
    glColor3d(1,1,1);
    glNormal3d(-1,0,0);
-   glVertex3d(1,0,-.3);
-   glVertex3d(1,1,0);
-   glVertex3d(1,1,-.1);
-   glVertex3d(1,0,-.4);
+   glTexCoord2f(0.0, 0.0); glVertex3d(1,0,-.3);
+   glTexCoord2f(1.0, 0.0); glVertex3d(1,1,0);
+   glTexCoord2f(1.0, 1.0); glVertex3d(1,1,-.1);
+   glTexCoord2f(0.0, 1.0); glVertex3d(1,0,-.4);
    //right side
    glColor3d(1,1,1);
    glNormal3d(-1,0,0);
-   glVertex3d(1.2,0,-.3);
-   glVertex3d(1.2,1,0);
-   glVertex3d(1.2,1,-.1);
-   glVertex3d(1.2,0,-.4);
+   glTexCoord2f(0.0, 0.0); glVertex3d(1.2,0,-.3);
+   glTexCoord2f(1.0, 0.0); glVertex3d(1.2,1,0);
+   glTexCoord2f(1.0, 1.0); glVertex3d(1.2,1,-.1);
+   glTexCoord2f(0.0, 1.0); glVertex3d(1.2,0,-.4);
    //top beam
    glColor3d(1,1,1);
    glNormal3d(0,0,-1);
-   glVertex3d(0,.8,.1);
-   glVertex3d(0,1,.1);
-   glVertex3d(1.2,1,.1);
-   glVertex3d(1.2,.8,.1);
+   glTexCoord2f(0.0, 0.0); glVertex3d(0,.8,.1);
+   glTexCoord2f(1.0, 0.0); glVertex3d(0,1,.1);
+   glTexCoord2f(1.0, 1.0); glVertex3d(1.2,1,.1);
+   glTexCoord2f(0.0, 1.0); glVertex3d(1.2,.8,.1);
    //back top beam
    glColor3d(1,1,1);
    glNormal3d(0,0,-1);
-   glVertex3d(0,.8,-.1);
-   glVertex3d(0,1,-.1);
-   glVertex3d(1.2,1,-.1);
-   glVertex3d(1.2,.8,-.1);
+   glTexCoord2f(0.0, 0.0); glVertex3d(0,.8,-.1);
+   glTexCoord2f(1.0, 0.0); glVertex3d(0,1,-.1);
+   glTexCoord2f(1.0, 1.0); glVertex3d(1.2,1,-.1);
+   glTexCoord2f(0.0, 1.0); glVertex3d(1.2,.8,-.1);
    //top top beam
    glColor3d(1,1,1);
    glNormal3d(0,-1,0);
-   glVertex3d(0,1,-.1);
-   glVertex3d(1.2,1,-.1);
-   glVertex3d(1.2,1,.1);
-   glVertex3d(0,1,.1);
+   glTexCoord2f(0.0, 0.0); glVertex3d(0,1,-.1);
+   glTexCoord2f(1.0, 0.0); glVertex3d(1.2,1,-.1);
+   glTexCoord2f(1.0, 1.0); glVertex3d(1.2,1,.1);
+   glTexCoord2f(0.0, 1.0); glVertex3d(0,1,.1);
    //bottom top beam
    glColor3d(1,1,1);
    glNormal3d(0,-1,0);
-   glVertex3d(0,.8,-.1);
-   glVertex3d(1.2,.8,-.1);
-   glVertex3d(1.2,.8,.1);
-   glVertex3d(0,.8,.1);
+   glTexCoord2f(0.0, 0.0); glVertex3d(0,.8,-.1);
+   glTexCoord2f(1.0, 0.0); glVertex3d(1.2,.8,-.1);
+   glTexCoord2f(1.0, 1.0); glVertex3d(1.2,.8,.1);
+   glTexCoord2f(0.0, 1.0); glVertex3d(0,.8,.1);
    //side caps beam
    glColor3d(1,1,1);
    glNormal3d(1,0,0);
-   glVertex3d(0.001,.8,-.1);
-   glVertex3d(0.001,1,-.1);
-   glVertex3d(0.001,1,.1);
-   glVertex3d(0.001,.8,.1);
+   glTexCoord2f(0.0, 0.0); glVertex3d(0.001,.8,-.1);
+   glTexCoord2f(1.0, 0.0); glVertex3d(0.001,1,-.1);
+   glTexCoord2f(1.0, 1.0); glVertex3d(0.001,1,.1);
+   glTexCoord2f(0.0, 1.0); glVertex3d(0.001,.8,.1);
    //side caps beam
    glColor3d(1,1,1);
    glNormal3d(1,0,0);
-   glVertex3d(1.201,.8,-.1);
-   glVertex3d(1.201,1,-.1);
-   glVertex3d(1.201,1,.1);
-   glVertex3d(1.201,.8,.1);
+   glTexCoord2f(0.0, 0.0); glVertex3d(1.201,.8,-.1);
+   glTexCoord2f(1.0, 0.0); glVertex3d(1.201,1,-.1);
+   glTexCoord2f(1.0, 1.0); glVertex3d(1.201,1,.1);
+   glTexCoord2f(0.0, 1.0); glVertex3d(1.201,.8,.1);
    //swing. top
    glColor3d(1,1,1);
    glNormal3d(0,-1,0);
-   glVertex3d(.5,.2,-.05);
-   glVertex3d(.7,.2,-.05);
-   glVertex3d(.7,.2,.05);
-   glVertex3d(.5,.2,.05);
+   glTexCoord2f(0.0, 0.0); glVertex3d(.5,.2,-.05);
+   glTexCoord2f(1.0, 0.0); glVertex3d(.7,.2,-.05);
+   glTexCoord2f(1.0, 1.0); glVertex3d(.7,.2,.05);
+   glTexCoord2f(0.0, 1.0); glVertex3d(.5,.2,.05);
    //swing bot
    glNormal3d(0,-1,0);
-   glVertex3d(.5,.15,-.05);
-   glVertex3d(.7,.15,-.05);
-   glVertex3d(.7,.15,.05);
-   glVertex3d(.5,.15,.05);
+   glTexCoord2f(0.0, 0.0); glVertex3d(.5,.15,-.05);
+   glTexCoord2f(1.0, 0.0); glVertex3d(.7,.15,-.05);
+   glTexCoord2f(1.0, 1.0); glVertex3d(.7,.15,.05);
+   glTexCoord2f(0.0, 1.0); glVertex3d(.5,.15,.05);
    //swing front
    glNormal3d(0,0,-1);
-   glVertex3d(.5,.15,.05);
-   glVertex3d(.5,.2,.05);
-   glVertex3d(.7,.2,.05);
-   glVertex3d(.7,.15,.05);
+   glTexCoord2f(0.0, 0.0); glVertex3d(.5,.15,.05);
+   glTexCoord2f(1.0, 0.0); glVertex3d(.5,.2,.05);
+   glTexCoord2f(1.0, 1.0); glVertex3d(.7,.2,.05);
+   glTexCoord2f(0.0, 1.0); glVertex3d(.7,.15,.05);
    //swing back
    glNormal3d(0,0,-1);
-   glVertex3d(.5,.15,-.05);
-   glVertex3d(.5,.2,-.05);
-   glVertex3d(.7,.2,-.05);
-   glVertex3d(.7,.15,-.05);
+   glTexCoord2f(0.0, 0.0); glVertex3d(.5,.15,-.05);
+   glTexCoord2f(1.0, 0.0); glVertex3d(.5,.2,-.05);
+   glTexCoord2f(1.0, 1.0); glVertex3d(.7,.2,-.05);
+   glTexCoord2f(0.0, 1.0); glVertex3d(.7,.15,-.05);
    //swing left
    glNormal3d(1,0,0);
-   glVertex3d(.5,.15,-.05);
-   glVertex3d(.5,.2,-.05);
-   glVertex3d(.5,.2,.05);
-   glVertex3d(.5,.15,.05);
+   glTexCoord2f(0.0, 0.0); glVertex3d(.5,.15,-.05);
+   glTexCoord2f(1.0, 0.0); glVertex3d(.5,.2,-.05);
+   glTexCoord2f(1.0, 1.0); glVertex3d(.5,.2,.05);
+   glTexCoord2f(0.0, 1.0); glVertex3d(.5,.15,.05);
    //swing right
    glNormal3d(1,0,0);
-   glVertex3d(.7,.15,-.05);
-   glVertex3d(.7,.2,-.05);
-   glVertex3d(.7,.2,.05);
-   glVertex3d(.7,.15,.05);
+   glTexCoord2f(0.0, 0.0); glVertex3d(.7,.15,-.05);
+   glTexCoord2f(1.0, 0.0); glVertex3d(.7,.2,-.05);
+   glTexCoord2f(1.0, 1.0); glVertex3d(.7,.2,.05);
+   glTexCoord2f(0.0, 1.0); glVertex3d(.7,.15,.05);
    glEnd();
    
    glBegin(GL_LINES);
@@ -483,6 +486,7 @@ static void swing_set(double x,double y,double z,
    glVertex3d(.7,1,0);
    glVertex3d(.7,.17,0);
    glEnd();
+   glDisable(GL_TEXTURE_2D);
    // undo transformations
    glPopMatrix();
    
@@ -490,7 +494,7 @@ static void swing_set(double x,double y,double z,
 
 static void shrub(double x,double y,double z,
                  double dx,double dy,double dz,
-                 double th)
+                 double th, unsigned int treetex)
 {
 	
    // Dimensions used to size house
@@ -500,42 +504,47 @@ static void shrub(double x,double y,double z,
    glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,.2);
    glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,white);
    glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,black);
+   
    //  Save transformation
    glPushMatrix();
    //  Offset, scale and rotate
    glTranslated(x,y,z);
    glRotated(th,0,1,0);
    glScaled(dx,dy,dz);
+   glEnable(GL_TEXTURE_2D);
+   glTexEnvi(GL_TEXTURE_ENV , GL_TEXTURE_ENV_MODE , GL_MODULATE);
+   glBindTexture(GL_TEXTURE_2D, treetex);
    // draw a square tree
    glBegin(GL_QUADS);
    glColor3f(0.5f, 0.35f, 0.05f);
    //main tree
    glNormal3f(0.0, -0.70710678, 0.70710678);
-   glVertex3d(0,0, 0);
-   glVertex3d(.2, 0, 0);
-   glVertex3d(.4, .2, -.2);
-   glVertex3d(-.2, .2, -.2);
+   glTexCoord2f(0.0, 0.0); glVertex3d(0,0, 0);
+   glTexCoord2f(1.0, 0.0); glVertex3d(.2, 0, 0);
+   glTexCoord2f(1.0, 1.0); glVertex3d(.4, .2, -.2);
+   glTexCoord2f(0.0, 1.0); glVertex3d(-.2, .2, -.2);
    
    glNormal3f(-0.70710678,  -0.70710678, 0.0);
-   glVertex3d(.2,0, 0);
-   glVertex3d(.2, 0, .2);
-   glVertex3d(.4, .2, .4);
-   glVertex3d(.4, .2, -.2);
+   glTexCoord2f(0.0, 0.0); glVertex3d(.2,0, 0);
+   glTexCoord2f(1.0, 0.0); glVertex3d(.2, 0, .2);
+   glTexCoord2f(1.0, 1.0); glVertex3d(.4, .2, .4);
+   glTexCoord2f(0.0, 1.0); glVertex3d(.4, .2, -.2);
    
    
    glNormal3f(0.0, -0.70710678, -0.70710678);
-   glVertex3d(.2,0, .2);
-   glVertex3d(0, 0, .2);
-   glVertex3d(-.2, .2, .4);
-   glVertex3d(.4, .2, .4);
+   glTexCoord2f(0.0, 0.0); glVertex3d(.2,0, .2);
+   glTexCoord2f(1.0, 0.0); glVertex3d(0, 0, .2);
+   glTexCoord2f(1.0, 1.0); glVertex3d(-.2, .2, .4);
+   glTexCoord2f(0.0, 1.0); glVertex3d(.4, .2, .4);
    
    glNormal3f(0.70710678, -0.70710678, 0.0);
-   glVertex3d(0,0, .2);
-   glVertex3d(0, 0, 0);
-   glVertex3d(-.2, .2, -.2);
-   glVertex3d(-.2, .2, .4);
+   glTexCoord2f(0.0, 0.0); glVertex3d(0,0, .2);
+   glTexCoord2f(1.0, 0.0); glVertex3d(0, 0, 0);
+   glTexCoord2f(1.0, 1.0); glVertex3d(-.2, .2, -.2);
+   glTexCoord2f(0.0, 1.0); glVertex3d(-.2, .2, .4);
    
    glEnd();
+   glDisable(GL_TEXTURE_2D);
    glColor3d(.2,.8,0);
    glScaled(1.5*dx, dy,2*dz);
    sphere1(.05, .63,.05,.55);
@@ -546,7 +555,7 @@ static void shrub(double x,double y,double z,
 
 static void tree(double x,double y,double z,
                  double dx,double dy,double dz,
-                 double th)
+                 double th, unsigned int treetex)
 {
 	
    // Dimensions used to size house
@@ -559,68 +568,71 @@ static void tree(double x,double y,double z,
    glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,black);
    //  Save transformation
    glPushMatrix();
+   
    //  Offset, scale and rotate
    glTranslated(x,y,z);
    glRotated(th,0,1,0);
    glScaled(dx,dy,dz);
-   //  Save current transforms
-   //  Offset, scale and rotate
-   //glTranslated(x,y,z);
-   //glMultMatrixd(mat);
+   //enable textures and set texture envi
+   glEnable(GL_TEXTURE_2D);
+   glTexEnvi(GL_TEXTURE_ENV , GL_TEXTURE_ENV_MODE , GL_MODULATE);
+   glBindTexture(GL_TEXTURE_2D, treetex);
    // draw a square tree
+
    glBegin(GL_QUADS);
    glColor3f(0.5f, 0.35f, 0.05f);
    //main tree
    glNormal3f(0,0,1);
-   glVertex3d(wid,0, 0);
-   glVertex3d(wid,1.2, 0);
-   glVertex3d(-wid, 1.2, 0);
-   glVertex3d(-wid, 0, 0);
+   glTexCoord2f(0.0, 0.0); glVertex3d(wid,0, 0);
+   glTexCoord2f(0.0, 1.0); glVertex3d(wid,1.2, 0);
+   glTexCoord2f(1.0, 1.0); glVertex3d(-wid, 1.2, 0);
+   glTexCoord2f(1.0, 0.0); glVertex3d(-wid, 0, 0);
    
    glNormal3f(-1,0,0);
-   glVertex3d(.2, 0, 0);
-   glVertex3d(.2, 1.2, 0);
-   glVertex3d(.2, 1.2, -.4);
-   glVertex3d(.2, 0, -.4);
+   glTexCoord2f(0.0, 0.0); glVertex3d(.2, 0, 0);
+   glTexCoord2f(0.0, 1.0); glVertex3d(.2, 1.2, 0);
+   glTexCoord2f(1.0, 1.0); glVertex3d(.2, 1.2, -.4);
+   glTexCoord2f(1.0, 0.0); glVertex3d(.2, 0, -.4);
    
    glNormal3f(-1,0,0);
-   glVertex3d(-.2, 0, 0);
-   glVertex3d(-.2, 1.2, 0);
-   glVertex3d(-.2, 1.2, -.4);
-   glVertex3d(-.2, 0, -.4);
+   glTexCoord2f(0.0, 0.0); glVertex3d(-.2, 0, 0);
+   glTexCoord2f(0.0, 1.0); glVertex3d(-.2, 1.2, 0);
+   glTexCoord2f(1.0, 1.0); glVertex3d(-.2, 1.2, -.4);
+   glTexCoord2f(1.0, 0.0); glVertex3d(-.2, 0, -.4);
    
    glNormal3f(0,0,1);
-   glVertex3d(wid, 0, -.4);
-   glVertex3d(wid, 1.2, -.4);
-   glVertex3d(-wid, 1.2, -.4);
-   glVertex3d(-wid, 0, -.4);
+   glTexCoord2f(0.0, 0.0); glVertex3d(wid, 0, -.4);
+   glTexCoord2f(0.0, 1.0); glVertex3d(wid, 1.2, -.4);
+   glTexCoord2f(1.0, 1.0); glVertex3d(-wid, 1.2, -.4);
+   glTexCoord2f(1.0, 0.0); glVertex3d(-wid, 0, -.4);
    
    //branch
    glNormal3d(0,0,-1);
-   glVertex3d(.2, .7, 0);
-   glVertex3d(.4, 1, 0);
-   glVertex3d(.5, 1, 0);
-   glVertex3d(.2,.6, 0);
+   glTexCoord2f(0.0, 0.0); glVertex3d(.2, .7, 0);
+   glTexCoord2f(0.0, 1.0); glVertex3d(.4, 1, 0);
+   glTexCoord2f(1.0, 1.0); glVertex3d(.5, 1, 0);
+   glTexCoord2f(1.0, 0.0); glVertex3d(.2,.6, 0);
    
    glNormal3d(-0.8,  -0.6,  0.0);
-   glVertex3d(.2, .6, 0);
-   glVertex3d(.5, 1,0);
-   glVertex3d(.5, 1,-.3);
-   glVertex3d(.2, .6,-.3);
+   glTexCoord2f(0.0, 0.0); glVertex3d(.2, .6, 0);
+   glTexCoord2f(0.0, 1.0); glVertex3d(.5, 1,0);
+   glTexCoord2f(1.0, 1.0); glVertex3d(.5, 1,-.3);
+   glTexCoord2f(1.0, 0.0); glVertex3d(.2, .6,-.3);
    
    glNormal3d(-0.83205029, 0.5547002, 0.0);        
-   glVertex3d(.2,.7, 0);
-   glVertex3d(.4, 1, 0);
-   glVertex3d(.4, 1,-.3);
-   glVertex3d(.2, .7,-.3);
+   glTexCoord2f(0.0, 0.0); glVertex3d(.2,.7, 0);
+   glTexCoord2f(0.0, 0.0); glVertex3d(.4, 1, 0);
+   glTexCoord2f(0.0, 0.0); glVertex3d(.4, 1,-.3);
+   glTexCoord2f(0.0, 0.0); glVertex3d(.2, .7,-.3);
    
    glNormal3d(0,0,-1);
-   glVertex3d(.2, .7, -.3);
-   glVertex3d(.4, 1, -.3);
-   glVertex3d(.5, 1, -.3);
-   glVertex3d(.2, .6, -.3);
+   glTexCoord2f(0.0, 0.0); glVertex3d(.2, .7, -.3);
+   glTexCoord2f(0.0, 1.0); glVertex3d(.4, 1, -.3);
+   glTexCoord2f(1.0, 1.0); glVertex3d(.5, 1, -.3);
+   glTexCoord2f(1.0, 0.0); glVertex3d(.2, .6, -.3);
    
    glEnd();
+   glDisable(GL_TEXTURE_2D);
    glColor3d(.2,.8,0);
    sphere1(0, 1.5,-.2,.55);
    sphere1(.45, 1.1,-.15,.25);
@@ -672,7 +684,7 @@ static void ball(double x,double y,double z,double r)
 static void Solidhouse(double x,double y,double z,
                        double dx,double dy,double dz,
                        double th, double sh, unsigned int rooftex,
-                       unsigned int bricktex)
+                       unsigned int bricktex, unsigned int doortex)
 {
 	
    // Dimensions used to size house
@@ -754,44 +766,36 @@ static void Solidhouse(double x,double y,double z,
    glTexCoord2f(0.0, 1.0); glVertex3d(-wid,0, -wid);
    glTexCoord2f(1.0, 1.0); glVertex3d(-wid,0, wid);
    glTexCoord2f(1.0, 0.0); glVertex3d(-wid,1, wid);
-
-   //door
-   glColor3f(.5,.35,.5);
-   glNormal3f(0,0,-1);
-   glVertex3d(0.2,0,-.501);
-   glVertex3d(-0.2,0,-.501);
-   glVertex3d(-0.2,.5,-.501);
-   glVertex3d(0.2,.5,-.501);
-   // window left
+   
    //window right
    //chimney
    glColor3f(1,1,1);
    glNormal3d(0,0,-1);
-   glVertex3d(-.48,chimbot,0);
-   glVertex3d(-.48,chimtop,0);
-   glVertex3d(-0.2,chimtop,0);
-   glVertex3d(-0.2,chimbot,0);
+   glTexCoord2f(0.0, 0.0); glVertex3d(-.48,chimbot,0);
+   glTexCoord2f(0.0, 1.0); glVertex3d(-.48,chimtop,0);
+   glTexCoord2f(1.0, 1.0); glVertex3d(-0.2,chimtop,0);
+   glTexCoord2f(1.0, 0.0); glVertex3d(-0.2,chimbot,0);
    //chimney2
    glColor3f(1,1,1);
    glNormal3d(0,0,-1);
-   glVertex3d(-.48,chimbot,.2);
-   glVertex3d(-.48,chimtop,.2);
-   glVertex3d(-0.2,chimtop,.2);
-   glVertex3d(-0.2,chimbot,.2);
+   glTexCoord2f(0.0, 0.0); glVertex3d(-.48,chimbot,.2);
+   glTexCoord2f(0.0, 1.0); glVertex3d(-.48,chimtop,.2);
+   glTexCoord2f(1.0, 1.0); glVertex3d(-0.2,chimtop,.2);
+   glTexCoord2f(1.0, 0.0); glVertex3d(-0.2,chimbot,.2);
    //chimney3
    glColor3f(1,1,1);
    glNormal3d(-1,0,0);
-   glVertex3d(-0.48,chimbot,0);
-   glVertex3d(-0.48,chimbot,0.2);
-   glVertex3d(-0.48,chimtop,.2);
-   glVertex3d(-0.48,chimtop,0);
+   glTexCoord2f(0.0, 0.0); glVertex3d(-0.48,chimbot,0);
+   glTexCoord2f(0.0, 1.0); glVertex3d(-0.48,chimbot,0.2);
+   glTexCoord2f(1.0, 1.0); glVertex3d(-0.48,chimtop,.2);
+   glTexCoord2f(1.0, 0.0); glVertex3d(-0.48,chimtop,0);
    //chimney4 left
    glColor3f(1,1,1);
    glNormal3d(-1,0,0);
-   glVertex3d(-0.2,chimbot,0);
-   glVertex3d(-0.2,chimbot,0.2);
-   glVertex3d(-0.2,chimtop,0.2);
-   glVertex3d(-0.2,chimtop,0);
+   glTexCoord2f(0.0, 0.0); glVertex3d(-0.2,chimbot,0);
+   glTexCoord2f(0.0, 1.0); glVertex3d(-0.2,chimbot,0.2);
+   glTexCoord2f(1.0, 1.0); glVertex3d(-0.2,chimtop,0.2);
+   glTexCoord2f(1.0, 0.0); glVertex3d(-0.2,chimtop,0);
    //chimney topper
    glColor3f(1,1,0);
    glNormal3d(-1,0,0);
@@ -834,6 +838,9 @@ static void Solidhouse(double x,double y,double z,
    glVertex3d(-0.51,2.1,-0.01);
    glVertex3d(-0.19,2.1,-0.01);
    glVertex3d(-0.19,2.1,0.21);
+   glEnd();
+   
+   glBegin(GL_QUADS);
    //picket
    glNormal3f(0,0,1);
    glColor3f(1,1,1);
@@ -913,6 +920,19 @@ static void Solidhouse(double x,double y,double z,
    glVertex3d(-.25,.35, fence);
    glVertex3d(-.2,.3, fence);
    glEnd();
+   
+   
+   //door
+   glBindTexture(GL_TEXTURE_2D, doortex);
+   glBegin(GL_QUADS);
+   glColor3f(1.0,1.0,1.0);
+   glNormal3f(0,0,-1);
+   glTexCoord2f(0.0, 0); glVertex3d(0.2,0,-.501);
+   glTexCoord2f(1.0, 0.0); glVertex3d(-0.2,0,-.501);
+   glTexCoord2f(1.0, 1.0); glVertex3d(-0.2,.5,-.501);
+   glTexCoord2f(0.0, 1.0); glVertex3d(0.2,.5,-.501);
+   // window left
+   glEnd();
    glDisable(GL_TEXTURE_2D);
 
    // undo transformations
@@ -986,13 +1006,13 @@ void display()
 
    //  Draw scene
    //cube(+1,0,0 , 0.5,0.5,0.5 , 0);
-   swing_set(.5,0,-.6,1,1,1,0);
-   tree(+1,0,-2,1,1,1, 0);
-   tree(-3,0,-1,1.5,1.5,1.5,0);
-   tree(-3,0,-1,1.5,1.5,1.5,0);
-   shrub(2.5,0,2.5,1,1,1,0);
-   Solidhouse(1,0,1,1.5,1.5,1.5,0,180,texture[0], texture[2]);
-   Solidhouse(-2,0,1,2.5,1,1,0, 90, texture[0], texture[2]);
+   swing_set(.5,0,-.6,1,1,1,0, texture[5]);
+   tree(+1,0,-2,1,1,1, 0, texture[3]);
+   tree(-3,0,-1,1.5,1.5,1.5,0, texture[3]);
+   tree(-3,0,-1,1.5,1.5,1.5,0, texture[3]);
+   shrub(2.5,0,2.5,1,1,1,0, texture[3]);
+   Solidhouse(1,0,1,1.5,1.5,1.5,0,180,texture[0], texture[2], texture[4]);
+   Solidhouse(-2,0,1,2.5,1,1,0, 90, texture[0], texture[2], texture[4]);
    //texture at 1 is grass 
    grass(0,0,0,1,1,1,0, texture[1]);
    
@@ -1193,6 +1213,9 @@ int main(int argc,char* argv[])
    texture[0] = LoadTexBMP("tile_roof.bmp");
    texture[1] = LoadTexBMP("grass1.bmp");
    texture[2] = LoadTexBMP("RedBrick.bmp");
+   texture[3] = LoadTexBMP("bark1.bmp");
+   texture[4] = LoadTexBMP("door1.bmp");
+   texture[5] = LoadTexBMP("wood1.bmp");
    //  Pass control to GLUT so it can interact with the user
    ErrCheck("init");
    glutMainLoop();
