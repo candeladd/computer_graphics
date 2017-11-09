@@ -1,9 +1,9 @@
-HomeWork 6
+HomeWork 5
 
 Andrew Candelaresi
 CSCI 5229 Fall 2017
 
-A simpe scene with houses and a texture and lighting Demonstration.
+A simpe scene with houses and a lighting Demonstration.
 to compile use the makefile by typing:
 make
 gcc -O3 -o hw4 hw4.o   -lglut -lGLU -lGL -lm
