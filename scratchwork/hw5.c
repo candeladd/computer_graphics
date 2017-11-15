@@ -64,168 +64,112 @@ static void Vertex(double th,double ph)
    glVertex3d(x,y,z);
 }
 
-/*
- * draw some gras for my city to be placed on
- * 
- */
-static void grass(double x,double y,double z,
-                 double dx,double dy,double dz,
-                 double th)
+
+/* This function will draw the cylinder
+ *
+ *   @parameter1: radius = The radius of cylinder
+ *   @parameter2: height = Height of the cylinder
+ *   @parameter3: R = Red value of the cylinder's color
+ *   @parameter4: G = Green value of the cylinder's color
+ *   @parameter5: B = Blue value of the cylinder's color
+ *
+ *   @return: Nothing
+*/
+void draw_cylinder(GLfloat x, 
+				   GLfloat y,
+				   GLfloat z,
+				   GLfloat radius,
+				   GLfloat height)
 {
-   //  Set specular color to white
-   float subtlegreen[] = {0,1,0,1};
-   float green[] = {0,0,0,1};
-   glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,.3);
-   glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,subtlegreen);
-   glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,green);
-   //  Save transformation
-   glPushMatrix();
-   //  Offset, scale and rotate
-   glTranslated(x,y,z);
-   glRotated(th,0,1,0);
-   glScaled(dx,dy,dz);
-   //  Cube
-   glBegin(GL_QUADS);
-   //  Front
-   glColor3d(.4,.6,.1);
-   glNormal3f( 0, -1, 0);
-   glVertex3f(-5,0, -5);
-   glVertex3f(-3,0, -5);
-   glVertex3f(-3,0, -3);
-   glVertex3f(-5,0, -3);
-   
-   glVertex3f(-5,0, -3);
-   glVertex3f(-3,0, -3);
-   glVertex3f(-3,0, -1);
-   glVertex3f(-5,0, -1);
-   
-   glVertex3f(-5,0, -1);
-   glVertex3f(-3,0, -1);
-   glVertex3f(-3,0, 1);
-   glVertex3f(-5,0, 1);
-   
-   glVertex3f(-5,0, 1);
-   glVertex3f(-3,0, 1);
-   glVertex3f(-3,0, 3);
-   glVertex3f(-5,0, 3);
-   
-   glVertex3f(-5,0, 3);
-   glVertex3f(-3,0, 3);
-   glVertex3f(-3,0, 5);
-   glVertex3f(-5,0, 5);
-   
-   glVertex3f(-3,0, -3);
-   glVertex3f(-1,0, -3);
-   glVertex3f(-1,0, -1);
-   glVertex3f(-3,0, -1);
-   
-   glVertex3f(-3,0, -5);
-   glVertex3f(-1,0, -5);
-   glVertex3f(-1,0, -3);
-   glVertex3f(-3,0, -3);
-   
-   glVertex3f(-3,0, -1);
-   glVertex3f(-1,0, -1);
-   glVertex3f(-1,0, 1);
-   glVertex3f(-3,0, 1);
-   
-   glVertex3f(-3,0, 1);
-   glVertex3f(-1,0, 1);
-   glVertex3f(-1,0, 3);
-   glVertex3f(-3,0, 3);
-   
-   glVertex3f(-3,0, 3);
-   glVertex3f(-1,0, 3);
-   glVertex3f(-1,0, 5);
-   glVertex3f(-3,0, 5);
-   
-   glVertex3f(-1,0, -5);
-   glVertex3f(1,0, -5);
-   glVertex3f(1,0, -3);
-   glVertex3f(-1,0, -3);
-   
-   glVertex3f(-1,0, -3);
-   glVertex3f(1,0, -3);
-   glVertex3f(1,0, -1);
-   glVertex3f(-1,0, -1);
-   
-   glVertex3f(-1,0, -1);
-   glVertex3f(1,0, -1);
-   glVertex3f(1,0, 1);
-   glVertex3f(-1,0, 1);
-   
-   glVertex3f(-1,0, 1);
-   glVertex3f(1,0, 1);
-   glVertex3f(1,0, 3);
-   glVertex3f(-1,0, 3);
-   
-   glVertex3f(-1,0, 3);
-   glVertex3f(1,0, 3);
-   glVertex3f(1,0, 5);
-   glVertex3f(-1,0, 5);
-   
-   glVertex3f(1,0, -5);
-   glVertex3f(3,0, -5);
-   glVertex3f(3,0, -3);
-   glVertex3f(1,0, -3);
-   
 
-   glVertex3f(1,0, -3);
-   glVertex3f(3,0, -3);
-   glVertex3f(3,0, -1);
-   glVertex3f(1,0, -1);
-   
-   glVertex3f(1,0, -1);
-   glVertex3f(3,0, -1);
-   glVertex3f(3,0, 1);
-   glVertex3f(1,0, 1);
-   
-   glVertex3f(1,0, 3);
-   glVertex3f(3,0, 3);
-   glVertex3f(3,0, 5);
-   glVertex3f(1,0, 5);
-   
-   glVertex3f(1,0, 1);
-   glVertex3f(3,0, 1);
-   glVertex3f(3,0, 3);
-   glVertex3f(1,0, 3);
-   
-   glVertex3f(1,0, 1);
-   glVertex3f(1,0, 3);
-   glVertex3f(3,0, 3);
-   glVertex3f(3,0, 1);
-   
-   glVertex3f(3,0,-5);
-   glVertex3f(5,0,-5);
-   glVertex3f(5,0,-3);
-   glVertex3f(3,0,-3);
-   
-   glVertex3f(3,0,-3);
-   glVertex3f(5,0,-3);
-   glVertex3f(5,0,-1);
-   glVertex3f(3,0,-1);
-   
-   glVertex3f(3,0,-1);
-   glVertex3f(5,0,-1);
-   glVertex3f(5,0,1);
-   glVertex3f(3,0,1);
-   
-   glVertex3f(3,0,1);
-   glVertex3f(5,0,1);
-   glVertex3f(5,0,3);
-   glVertex3f(3,0,3);
-   
-   glVertex3f(3,0,3);
-   glVertex3f(5,0,3);
-   glVertex3f(5,0,5);
-   glVertex3f(3,0,5);
+    GLfloat angle          = 0.0;
+    GLfloat angle_stepsize = 0.1;
+    glPushMatrix();
+	glTranslatef(x, y, z);
+    /** Draw the tube */
+    glColor3f(1.0,1.0,1.0);
+    glBegin(GL_QUAD_STRIP);
+    angle = 0.0;
+        while( angle < 2*PI ) {
+            x = radius * cos(angle);
+            y = radius * sin(angle);
+            glVertex3f(x, y , height);
+            glVertex3f(x, y , 0.0);
+            angle = angle + angle_stepsize;
+        }
+        glVertex3f(radius, 0.0, height);
+        glVertex3f(radius, 0.0, 0.0);
+    glEnd();
 
-   //  End
-   glEnd();
-   //  Undo transofrmations
-   glPopMatrix();
-   
-  }
+    /** Draw the circle on top of cylinder */
+    glColor3f(.5,.7,.3);
+    glBegin(GL_POLYGON);
+    angle = 0.0;
+        while( angle < 2*PI ) {
+            x = radius * cos(angle);
+            y = radius * sin(angle);
+            glVertex3f(x, y , height);
+            angle = angle + angle_stepsize;
+        }
+        glVertex3f(radius, 0.0, height);
+    glEnd();
+    
+    glPopMatrix();
+}
+
+
+
+/* This function will draw the cylinder with out the top
+ *
+ *   @parameter1: radius = The radius of cylinder
+ *   @parameter2: height = Height of the cylinder
+ *   @parameter3: R = Red value of the cylinder's color
+ *   @parameter4: G = Green value of the cylinder's color
+ *   @parameter5: B = Blue value of the cylinder's color
+ *
+ *   @return: Nothing
+*/
+void draw_cylinder_no_top(GLfloat x, 
+				   GLfloat y,
+				   GLfloat z,
+				   GLfloat radius,
+				   GLfloat height)
+{
+
+    GLfloat angle          = 0.0;
+    GLfloat angle_stepsize = 0.1;
+    glPushMatrix();
+	glTranslatef(x, y, z);
+    /** Draw the tube */
+    glColor3f(1.0,1.0,1.0);
+    glBegin(GL_QUAD_STRIP);
+    angle = 0.0;
+        while( angle < 2*PI ) {
+            x = radius * cos(angle);
+            y = radius * sin(angle);
+            glVertex3f(x, y , height);
+            glVertex3f(x, y , 0.0);
+            angle = angle + angle_stepsize;
+        }
+        glVertex3f(radius, 0.0, height);
+        glVertex3f(radius, 0.0, 0.0);
+    glEnd();
+
+    /** Draw the circle on top of cylinder 
+    glColor3f(.5,.7,.3);
+    glBegin(GL_POLYGON);
+    angle = 0.0;
+        while( angle < 2*PI ) {
+            x = radius * cos(angle);
+            y = radius * sin(angle);
+            glVertex3f(x, y , height);
+            angle = angle + angle_stepsize;
+        }
+        glVertex3f(radius, 0.0, height);
+    glEnd();
+    */
+    glPopMatrix();
+}
 
 /*
  *  Draw a sphere (version 1)
@@ -260,6 +204,44 @@ static void sphere1(double x,double y,double z,double r)
    //  Undo transofrmations
    glPopMatrix();
 }
+
+/*
+ *  Draw a sphere (version 1)
+ *     at (x,y,z)
+ *     radius (r)
+ */
+static void flacon_bod(double x,double y,double z,double r, 
+					   double dx, double dy, double dz, double rdeg)
+{
+   //glScaled(dx, dy, dz);
+   int th,ph;
+   float yellow[] = {0.0,1.0,0.0,1.0};
+   float black[] = {0,0,0,1};
+
+   //  Save transformation
+   glPushMatrix();
+   //  Offset and scale
+   glTranslated(x,y,z);
+   glScaled(dx+r,dy+r,dz+r);
+   glMaterialf(GL_FRONT,GL_SHININESS,.5);
+   glMaterialfv(GL_FRONT,GL_SPECULAR,yellow);
+   glMaterialfv(GL_FRONT,GL_EMISSION,black);
+   //  Bands of latitude
+   glRotated(rdeg, 0,1,0);
+   for (ph=-90;ph<90;ph+=inc)
+   {
+      glBegin(GL_QUAD_STRIP);
+      for (th=0;th<=180;th+=2*inc)
+      {
+         Vertex(th,ph);
+         Vertex(th,ph+inc);
+      }
+      glEnd();
+   }
+   //  Undo transofrmations
+   glPopMatrix();
+}
+
 
 /*
  *  Draw a ball
@@ -566,10 +548,14 @@ void static falcon1(double x, double y, double z,
 
    //
    //glVertex3d(7.478,-3.234,0.0);
-   
-   drawHollowCircle(6.869,-3.975, 1);
+
    glColor3f(.6,.6,1);
-   drawHollowCircle(6.669,-4.2, 3.8);
+   flacon_bod(6.669, -4.2, -1, 1, 2.8, 2.8, 0, 90);
+   flacon_bod(6.669, -4.2, 0, 1, 2.8, 2.8, 0, -90);
+
+   draw_cylinder(6.869,-3.975, 0.9, 1, .2);
+   draw_cylinder_no_top(6.669, -4.2, -1, 3.7, 1);
+
 	
    glPopMatrix();
 }
