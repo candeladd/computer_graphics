@@ -210,7 +210,7 @@ static void sphere1(double x,double y,double z,double r)
  *     at (x,y,z)
  *     radius (r)
  */
-static void flacon_bod(double x,double y,double z,double r, 
+static void falcon_bod(double x,double y,double z,double r, 
 					   double dx, double dy, double dz, double rdeg)
 {
    //glScaled(dx, dy, dz);
@@ -305,6 +305,80 @@ void drawHollowCircle(GLfloat x, GLfloat y, GLfloat radius){
 	glEnd();
 }
 
+void static reactcore(double x, double y, double z,
+				  double dx, double dy, double dz,
+				  double th)
+{
+	glPushMatrix();
+   // reactor core
+   glTranslated(x, y, z);
+   glRotated(th, dx, 0,0);
+   glBegin(GL_POLYGON);
+   glColor3f(1,1,1);
+   glVertex3d(1.912,-3.677,0.0);
+   glVertex3d(0.125,-3.677,0.0);
+   glVertex3d(0.125,-3.3,0.0);
+   glVertex3d(5.243,-0.575,0.0);
+   glVertex3d(5.977,-0.865,0.0);
+   glVertex3d(6.365,-3.677,0.0);
+   glEnd();
+   glPopMatrix();
+}
+
+void static corewalls(double x, double y, double z,
+				  double dx, double dy, double dz,
+				  double th)
+{
+		glPushMatrix();
+   // reactor core
+   glTranslated(x, y, z);
+   glRotated(th, dx, 0,0);
+   glBegin(GL_POLYGON);
+   glColor3f(1,0,0);
+   glVertex3d(6.365,-3.677,0.0);
+   glVertex3d(6.365,-3.677,-1.0);
+   glVertex3d(0.125,-3.677,-1.0);
+   glVertex3d(0.125,-3.677,0.0);
+   glEnd();
+   
+   glBegin(GL_POLYGON);
+   glColor3f(0,1,1);
+   glVertex3d(0.125,-3.677,0.0);
+   glVertex3d(0.125,-3.677,-1.0);
+   glVertex3d(0.125,-3.3,-1.0);
+   glVertex3d(0.125,-3.3,0.0);
+
+   //glVertex3d(5.243,-0.675,-1.0);
+   //glVertex3d(5.243,-0.675,0.0);
+   glEnd();
+   
+   
+   glBegin(GL_POLYGON);
+   glColor3f(0,1,0);
+   glVertex3d(0.125,-3.3,0.0);
+   glVertex3d(0.125,-3.3,-1.0);
+   glVertex3d(5.243,-0.675,-1.0);
+   glVertex3d(5.243,-0.675,0.0);
+   glEnd();
+   
+   glBegin(GL_POLYGON);
+   glColor3f(0,0,1);
+   glVertex3d(5.977,-0.865,0.0);
+   glVertex3d(5.977,-0.865,-1.0);
+   glVertex3d(6.365,-3.677,-1.0);
+   glVertex3d(6.365,-3.677,0.0);
+   glEnd();
+   /*
+   glBegin(GL_POLYGON);
+   glColor3f(1,.5,.5);
+   glVertex3d(6.365,-3.677,0.0);
+   glVertex3d(6.365,-3.677,-1.0);
+   glVertex3d(1.912,-3.677,-1.0);
+   glVertex3d(1.912,-3.677,0.0);
+   glEnd();
+   */ 
+   glPopMatrix();
+}
 
 void static falcon1(double x, double y, double z,
 				  double dx, double dy, double dz,
@@ -317,18 +391,26 @@ void static falcon1(double x, double y, double z,
    // glRotated(th,0,1,0);
    glScaled(dx,dy,dz);
    
+   reactcore(0,0,0,0,0,0,0);
+   reactcore(0,0,-1,0,0,0,0.0);
+   corewalls(0,0,0,0,0,0,0);
+   
+   reactcore(0,-8.4,0,1,0,0,180);
+   reactcore(0,-8.4,-1,1,0,0,180);
+   corewalls(0,-8.4,-1,1,0,0,180);
    // reactor core
+   /*
    glBegin(GL_POLYGON);
    glColor3f(1,1,1);
-   //glVertex3d(1.912,-4.724,0.0);
    glVertex3d(1.912,-3.877,0.0);
    glVertex3d(0.125,-3.877,0.0);
-   glVertex3d(0.125,-3.343,0.0);
-   glVertex3d(5.800,-0.469,0.0);
+   glVertex3d(0.125,-3.3,0.0);
+   glVertex3d(5.243,-0.675,0.0);
    glVertex3d(5.977,-0.865,0.0);
-   glVertex3d(6.365,-2.980,0.0);
-   glVertex3d(6.473,-5.075,0.0);
+   glVertex3d(6.365,-3.87780,0.0);
    glEnd();
+   
+   
    
    //core pt2
    glBegin(GL_POLYGON);
@@ -348,24 +430,7 @@ void static falcon1(double x, double y, double z,
    glVertex3d(1.912,-3.877,0.0);
    glEnd();
    
-   //back quarter pt 1
-   glBegin(GL_POLYGON);
-   glVertex3d(7.590,-4.725,0.0);
-   glVertex3d(7.429,-4.789,0.0);
-   glVertex3d(7.275,-4.901,0.0);
-   glVertex3d(7.321,-5.055,0.0);
-   glVertex3d(7.733,-7.978,0.0);
-   glVertex3d(9.557,-6.844,0.0);
-   glVertex3d(9.258,-7.162,0.0);
-   glVertex3d(9.014,-7.358,0.0);
-   glVertex3d(8.743,-7.543,0.0);
-   glVertex3d(8.459,-7.710,0.0);
-   glVertex3d(8.189,-7.829,0.0);
-   glVertex3d(8.010,-7.886,0.0);
-   glVertex3d(7.876,-7.929,0.0);
-   glVertex3d(7.719,-7.984,0.0);
-   glEnd();
-   
+ 
    //back quarter pt 2
    glBegin(GL_POLYGON);
    glVertex3d(7.087,-0.893,0.0);
@@ -548,14 +613,15 @@ void static falcon1(double x, double y, double z,
 
    //
    //glVertex3d(7.478,-3.234,0.0);
-
+	*/
    glColor3f(.6,.6,1);
-   flacon_bod(6.669, -4.2, -1, 1, 2.8, 2.8, 0, 90);
-   flacon_bod(6.669, -4.2, 0, 1, 2.8, 2.8, 0, -90);
+   falcon_bod(6.669, -4.2, -1, 1, 2.8, 2.8, 0, 90);
+   glColor3f(0,1,1);
+   falcon_bod(6.669, -4.2, 0, 1, 2.8, 2.8, 0, -90);
 
    draw_cylinder(6.869,-3.975, 0.9, 1, .2);
    draw_cylinder_no_top(6.669, -4.2, -1, 3.7, 1);
-
+	
 	
    glPopMatrix();
 }
@@ -636,7 +702,7 @@ void display()
 
    //  Draw axes - no lighting from here on
    glDisable(GL_LIGHTING);
-   falcon1(0,0,0,1,1,1,0);
+   falcon1(-6.669, 4.2,0,1,1,1,0);
    glColor3f(1,1,1);
    if (axes)
    {
