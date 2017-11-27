@@ -26,6 +26,8 @@
 
 
 #define PI 3.14159265358979323846
+/*  D degrees of rotation */
+#define DEF_D 5
 int axes=1;       //  Display axes
 int mode=1;       //  Projection mode
 int move=1;       //  Move light
@@ -64,6 +66,65 @@ static void Vertex(double th,double ph)
    glVertex3d(x,y,z);
 }
 
+void static body_cone(double x, double y, double z, double dx, double dy, double dz, 
+							 double deg_cir, double x_rot, double z_rot)
+{
+  /* cone */
+
+    /* sides */
+    glPushMatrix();
+    glTranslated(x,y,z);
+    glScaled(dx, dy, dz);
+    glRotated(x_rot, 1, 0, 0);
+    glRotated(z_rot, 0, 0, 1);
+    glBegin(GL_TRIANGLES);
+
+    for (int k=0;k<=deg_cir;k+=DEF_D)
+    {
+      // height
+      glVertex3d(0,0,1);
+
+      glVertex3d(Cos(k),Sin(k),0);
+      //glColor3d(1.0,0.0,0.0);
+      glVertex3d(Cos(k+DEF_D),Sin(k+DEF_D),0);
+    }
+    glEnd();
+        /* bottom circle */ 
+    /* rotate back *
+    glRotated(90,1,0,0);
+    glBegin(GL_TRIANGLES);
+    for (int k=0;k<=deg_cir;k+=DEF_D) {
+      //glColor3f(1.0,0.0,0.0);
+      glVertex3f(0,0,0);
+      //glColor3f(1.0,0.0,1.0);
+      glVertex3f(Cos(k),0,Sin(k));
+      //glColor3f(1.0,1.0,0.0);
+      glVertex3f(Cos(k+DEF_D),0,Sin(k+DEF_D));
+    }
+    glEnd();
+    * */
+    glPopMatrix();
+}
+
+void static body_mid_sect(double x, double y, double z,
+						  double dx, double dy, double dz,
+						  double deg_cir, double x_rot, double z_rot)
+{
+   /* cylinder */
+   /*  sides */
+   glPushMatrix();
+   glTranslated(x,y,z);
+   glScaled(dx, dy, dz);
+   glRotated(x_rot, 1, 0, 0);
+   glRotated(z_rot, 0, 0, 1);
+   glBegin(GL_QUAD_STRIP);
+   for (int j=0;j<=deg_cir;j+=DEF_D) {
+     glVertex3d(Cos(j),+1,Sin(j));
+     glVertex3d(Cos(j),-1,Sin(j));
+   }
+   glEnd();
+   glPopMatrix();
+}
 
 /* This function will draw the cylinder
  *
@@ -114,6 +175,58 @@ void draw_cylinder(GLfloat x,
         glVertex3f(radius, 0.0, height);
     glEnd();
     
+    glPopMatrix();
+}
+
+void cock_pit_body(GLfloat x, 
+				   GLfloat y,
+				   GLfloat z,
+				   double dx,
+				   double dy, 
+				   double dz,
+				   double th,
+				   double sh,
+				   double base,
+				   double top,
+				   double height,
+				   double slices,
+				   double stacks)
+{
+
+
+    glPushMatrix();
+    glTranslatef(x, y, z);
+    glRotated(th, dx, 0, 0);
+    glRotated(sh, 0, dy, dz);
+
+	glRotated(th, dx, 0, 0);
+    GLUquadricObj *quadObj = gluNewQuadric();
+    gluCylinder(quadObj, base, top, height, slices, stacks);
+    glPopMatrix();
+}
+
+void cock_pit_body2(GLfloat x, 
+				   GLfloat y,
+				   GLfloat z,
+				   double dx,
+				   double dy, 
+				   double dz,
+				   double th,
+				   double sh,
+				   double base,
+				   double top,
+				   double height,
+				   double slices,
+				   double stacks)
+{
+
+
+    glPushMatrix();
+    glTranslatef(x, y, z);
+    glRotated(th, dx, 0, 0);
+    glRotated(sh, 0, dy, 0);
+    GLUquadricObj *quadObj = gluNewQuadric();
+    gluCylinder(quadObj, base, top, height, slices, stacks);
     glPopMatrix();
 }
 
@@ -205,43 +318,6 @@ static void sphere1(double x,double y,double z,double r)
    glPopMatrix();
 }
 
-/*
- *  Draw a sphere (version 1)
- *     at (x,y,z)
- *     radius (r)
- */
-static void falcon_bod(double x,double y,double z,double r, 
-					   double dx, double dy, double dz, double rdeg)
-{
-   //glScaled(dx, dy, dz);
-   int th,ph;
-   float yellow[] = {0.0,1.0,0.0,1.0};
-   float black[] = {0,0,0,1};
-
-   //  Save transformation
-   glPushMatrix();
-   //  Offset and scale
-   glTranslated(x,y,z);
-   glScaled(dx+r,dy+r,dz+r);
-   glMaterialf(GL_FRONT,GL_SHININESS,.5);
-   glMaterialfv(GL_FRONT,GL_SPECULAR,yellow);
-   glMaterialfv(GL_FRONT,GL_EMISSION,black);
-   //  Bands of latitude
-   glRotated(rdeg, 0,1,0);
-   for (ph=-90;ph<90;ph+=inc)
-   {
-      glBegin(GL_QUAD_STRIP);
-      for (th=0;th<=180;th+=2*inc)
-      {
-         Vertex(th,ph);
-         Vertex(th,ph+inc);
-      }
-      glEnd();
-   }
-   //  Undo transofrmations
-   glPopMatrix();
-}
-
 
 /*
  *  Draw a ball
@@ -315,12 +391,11 @@ void static reactcore(double x, double y, double z,
    glRotated(th, dx, 0,0);
    glBegin(GL_POLYGON);
    glColor3f(1,1,1);
-   glVertex3d(1.912,-3.677,0.0);
-   glVertex3d(0.125,-3.677,0.0);
+   glVertex3d(0.125,-3.55,0.0);
    glVertex3d(0.125,-3.3,0.0);
    glVertex3d(5.243,-0.575,0.0);
    glVertex3d(5.977,-0.865,0.0);
-   glVertex3d(6.365,-3.677,0.0);
+   glVertex3d(6.365,-3.55,0.0);
    glEnd();
    glPopMatrix();
 }
@@ -335,16 +410,16 @@ void static corewalls(double x, double y, double z,
    glRotated(th, dx, 0,0);
    glBegin(GL_POLYGON);
    glColor3f(1,0,0);
-   glVertex3d(6.365,-3.677,0.0);
-   glVertex3d(6.365,-3.677,-1.0);
-   glVertex3d(0.125,-3.677,-1.0);
-   glVertex3d(0.125,-3.677,0.0);
+   glVertex3d(6.365,-3.55,0.0);
+   glVertex3d(6.365,-3.55,-1.0);
+   glVertex3d(0.125,-3.55,-1.0);
+   glVertex3d(0.125,-3.55,0.0);
    glEnd();
    
    glBegin(GL_POLYGON);
    glColor3f(0,1,1);
-   glVertex3d(0.125,-3.677,0.0);
-   glVertex3d(0.125,-3.677,-1.0);
+   glVertex3d(0.125,-3.55,0.0);
+   glVertex3d(0.125,-3.55,-1.0);
    glVertex3d(0.125,-3.3,-1.0);
    glVertex3d(0.125,-3.3,0.0);
 
@@ -365,8 +440,8 @@ void static corewalls(double x, double y, double z,
    glColor3f(0,0,1);
    glVertex3d(5.977,-0.865,0.0);
    glVertex3d(5.977,-0.865,-1.0);
-   glVertex3d(6.365,-3.677,-1.0);
-   glVertex3d(6.365,-3.677,0.0);
+   glVertex3d(6.365,-3.55,-1.0);
+   glVertex3d(6.365,-3.55,0.0);
    glEnd();
    /*
    glBegin(GL_POLYGON);
@@ -380,6 +455,121 @@ void static corewalls(double x, double y, double z,
    glPopMatrix();
 }
 
+void static tunnel(double x, double y, double z, 
+				   double dx, double dy, double dz,
+				   double th, double sh)
+{
+   glPushMatrix();
+   // tunnel top piece
+   glTranslated(x, y, z);
+   glRotated(th, dx, 0,0);
+   glRotated(sh, 0, dy,dz);
+   glBegin(GL_POLYGON);
+   glColor3f(1,0,0);
+   glVertex3d(6.669, -2.85,1.0);
+   glVertex3d(7.669, -2.85,1.0);
+   glVertex3d(7.669, -1,1.0);
+   glVertex3d(6.669, -1,1.0);
+   glEnd();
+   // tunnel side 1 piece
+   glBegin(GL_POLYGON);
+   glColor3f(1,1,0);
+   glVertex3d(6.669, -2.85,1.0);
+   glVertex3d(6.269, -2.9,0.0);
+   glVertex3d(6.269, -1,0.0);
+   glVertex3d(6.669, -1,1.0);
+   glEnd();
+   // tunnel side 2 piece
+   glBegin(GL_POLYGON);
+   glColor3f(1,1,0);
+   glVertex3d(7.669, -2.85,1.0);
+   glVertex3d(8.069, -2.9,0.0);
+   glVertex3d(8.069, -1,0.0);
+   glVertex3d(7.669, -1,1.0);
+   glEnd();
+   // tunnel interieor ship piece
+   glBegin(GL_POLYGON);
+   glColor3f(1,1,0);
+   glVertex3d(6.669, -2.85,1.0);
+   glVertex3d(7.669, -2.85,1.0);
+   glVertex3d(8.069, -2.9,0.0);
+   glVertex3d(6.269, -2.9,0.0);
+   glEnd();
+   // tunnel escape pod piece
+   glBegin(GL_POLYGON);
+   glColor3f(1,0,1);
+   glVertex3d(7.669, -1,1.0);
+   glVertex3d(6.669, -1,1.0);
+   glVertex3d(6.269, -1,0.0);
+   glVertex3d(8.069, -1,0.0);
+   glEnd();
+      glBegin(GL_POLYGON);
+   glColor3f(1,0,1);
+   glVertex3d(6.269, -1,0.0);
+   glVertex3d(6.269, -1,-0.5);
+   glVertex3d(8.069, -1,-0.5);
+   glVertex3d(8.069, -1,0.0);
+   glEnd();
+   glPopMatrix();
+}
+void static fronts_piece(double x, double y, double z,
+				  double dx, double dy, double dz,
+				  double th)
+{
+   glPushMatrix();
+   // fronts piece
+   glTranslated(x, y, z);
+   glRotated(th, dx, 0,0);
+   glBegin(GL_POLYGON);
+   glColor3f(1,0,0);
+   glVertex3d(2.0,-3.65,0.8);
+   glVertex3d(5.9,-3.55,1.1);
+   glVertex3d(5.9,-4.78,1.1);
+   glVertex3d(2.0,-4.68,0.8);
+   glEnd();	
+   //up slant pieces
+   glBegin(GL_POLYGON);
+   glColor3f(0.1,0.5,0.6);
+   glVertex3d(2.0,-3.65,0.8);
+   glVertex3d(5.9,-3.55,1.1);
+   glVertex3d(5.9,-3.25,0.1);
+   glVertex3d(1.7,-3.35,0.1);
+   glEnd();	
+   //down slant pieceside
+   glBegin(GL_POLYGON);
+   glColor3f(0.1,0.5,0.6);
+   glVertex3d(2.0,-4.68,0.8);
+   glVertex3d(5.9,-4.78,1.1);
+   glVertex3d(5.9,-5.8,0.1);
+   glVertex3d(1.7,-4.98,0.1);
+   glEnd();	
+   // front slant pieces
+   glBegin(GL_POLYGON);
+   glColor3f(0.1,1.0,0.6);
+   glVertex3d(2.0,-3.75,0.8);
+   glVertex3d(2.0,-4.68,0.8);
+   glVertex3d(1.7,-4.98,0.1);
+   glVertex3d(1.7,-3.35,0.1);
+   glEnd();	
+   // back
+   glBegin(GL_POLYGON);
+   glColor3f(0.1,1.0,0.6);
+   glVertex3d(5.9,-3.55,1.1);
+   glVertex3d(5.9,-3.25,0.1);
+   glVertex3d(5.9,-5.8,0.1);
+   glVertex3d(5.9,-4.78,1.1);
+   glEnd();
+   // bottom 
+   glBegin(GL_POLYGON);
+   glColor3f(0.1,1.0,0.6);
+   glVertex3d(5.9,-3.25,0.1);
+   glVertex3d(1.7,-3.35,0.1);
+   glVertex3d(1.7,-4.98,0.1);
+   glVertex3d(5.9,-5.8,0.1);
+   glEnd();
+   glPopMatrix();
+}
+
 void static falcon1(double x, double y, double z,
 				  double dx, double dy, double dz,
 				  double th)
@@ -387,8 +577,8 @@ void static falcon1(double x, double y, double z,
    glPushMatrix();
    //  Offset, scale and rotate
    glTranslated(x,y,z);
-   // glRotated(sh,0,1,0);
-   // glRotated(th,0,1,0);
+   //glRotated(sh,0,1,0);
+   glRotated(th,1,0,0);
    glScaled(dx,dy,dz);
    
    reactcore(0,0,0,0,0,0,0);
@@ -400,52 +590,6 @@ void static falcon1(double x, double y, double z,
    corewalls(0,-8.4,-1,1,0,0,180);
    // reactor core
    /*
-   glBegin(GL_POLYGON);
-   glColor3f(1,1,1);
-   glVertex3d(1.912,-3.877,0.0);
-   glVertex3d(0.125,-3.877,0.0);
-   glVertex3d(0.125,-3.3,0.0);
-   glVertex3d(5.243,-0.675,0.0);
-   glVertex3d(5.977,-0.865,0.0);
-   glVertex3d(6.365,-3.87780,0.0);
-   glEnd();
-   
-   
-   
-   //core pt2
-   glBegin(GL_POLYGON);
-   glColor3f(1,1,1);
-   glVertex3d(6.473,-5.075,0.0);
-   glVertex3d(6.374,-7.517,0.0);
-   glVertex3d(6.197,-8.060,0.0);
-   glVertex3d(5.453,-7.856,0.0);
-   glVertex3d(5.073,-7.693,0.0);
-   glVertex3d(4.817,-7.569,0.0);
-   glVertex3d(4.642,-7.475,0.0);
-   glVertex3d(4.0,-7.0,0.0);
-   glVertex3d(0.125,-5.296,0.0);
-   glVertex3d(0.125,-4.724,0.0);
-   //last bit
-   glVertex3d(1.912,-4.724,0.0);
-   glVertex3d(1.912,-3.877,0.0);
-   glEnd();
-   
- 
-   //back quarter pt 2
-   glBegin(GL_POLYGON);
-   glVertex3d(7.087,-0.893,0.0);
-   glVertex3d(7.200,-0.481,0.0);
-   glVertex3d(7.467,-0.548,0.0);
-   glVertex3d(7.798,-0.646,0.0);
-   glVertex3d(8.144,-0.797,0.0);
-   glVertex3d(8.396,-0.907,0.0);
-   glVertex3d(8.715,-1.084,0.0);
-   glVertex3d(9.054,-1.272,0.0);
-   glVertex3d(7.471,-3.211,0.0);
-   glVertex3d(7.193,-3.099,0.0);
-   glVertex3d(7.193,-2.948,0.0);
-   // glVertex3d(,-,0.0);
-   glEnd();
    
    
    //tail
@@ -610,19 +754,57 @@ void static falcon1(double x, double y, double z,
    glVertex3d(6.589,-5.156,-0.2);
    glVertex3d(7.324,-5.147,-0.2);
    glEnd();
-
+	*/
    //
    //glVertex3d(7.478,-3.234,0.0);
-	*/
+	
    glColor3f(.6,.6,1);
-   falcon_bod(6.669, -4.2, -1, 1, 2.8, 2.8, 0, 90);
+   //hull of the ship
+   body_cone(6.669,-4.2,-1, 3.8, 3.8, 1,125,180,291);
+   body_cone(6.669,-4.2,0, 3.8, 3.8, 1,164.99,180,96);
+   //cock_pit_body(6.669, -4.2, -1, 1, 0, 0, 90, 0, 3.8, 0, 1, 50, 10);
+   //glColor3f(.6,.6,1);
    glColor3f(0,1,1);
-   falcon_bod(6.669, -4.2, 0, 1, 2.8, 2.8, 0, -90);
+   //hull of the ship close back
+   body_cone(6.669,-4.2,0, 3.8, 3.8, 1,130,0,293);
+   //close front
+   body_cone(6.669,-4.2,0, 3.8, 3.8, 1,164.99,0,96);
+   // extra body cap
+   body_cone(6.669,-4.2,0, 1.8, 1.8, 1,360,0,0);
+   //cock_pit_body(6.669, -4.2, 0, 0, 0, 0, 0, 0, 3.8, 0, 1, 50, 10);
 
-   draw_cylinder(6.869,-3.975, 0.9, 1, .2);
-   draw_cylinder_no_top(6.669, -4.2, -1, 3.7, 1);
-	
-	
+   draw_cylinder(6.869,-3.975, 0.5, 1, .5);
+   //cirular body of ship
+   glColor3f(1,1,1);
+   body_mid_sect(0, 0, 0,0,0,0,360,0,0);
+   // draw_cylinder_no_top(6.669, -4.2, -1, 3.7, 1);
+   fronts_piece(0,0,0,0,0,0,0);
+   fronts_piece(0,-8.5,-1,1,0,0,180);
+   tunnel(0,0,0,0,0,0,0,0);
+   tunnel(14.25,0,-1,1,0,1,180, 180);
+   tunnel(0,-8.35,-1,1,0,0,180,0);
+   tunnel(14.25,-8.35,0,1,1,0,180,180);
+   //tunnel
+   glColor3f(0.0,1.0,0.0);
+   // cock pit inside ship
+   cock_pit_body(4.75, -0.2, 0.5, 1.0, 0.0, 1.0, 48.0, 25.0, 0.8, 0.8, 3.0, 50.0, 10.0);
+   glColor3f(1.0,0.0,0.0);
+   // cockpit out side shipt
+   cock_pit_body2(3.299, -0.28, 0.5, 1, 1, 0, 90, 90, 0.8, 0.8, 1.5, 50, 10);
+   glColor3f(0,0,1);
+   //cock pit cone
+   cock_pit_body2(1.789, -0.28, 0.5, 1, 1, 0, 90, 90, 0.5, 0.8, 1.5, 50, 10);
+   glColor3f(1,1,1);
+   // join cock pit sections
+   sphere1(4.779,-0.28,0.5,0.8);
+   glColor3f(1,0,0);
+   // escape pods
+   cock_pit_body2(7.1,0,0,1,0,0,90,0, .5, .5, .5, 50, 10);
+
+
+
+   
+   //gluCylinder(x, y, z, dx, dy, dz, th, sh, base, top, height, slices, stacks);
    glPopMatrix();
 }
 
@@ -689,20 +871,17 @@ void display()
    else
      glDisable(GL_LIGHTING);
 
-   //  Draw scene
-   //cube(+1,0,0 , 0.5,0.5,0.5 , 0);
-   // swing_set(.5,0,-.6,1,1,1,0);
-   // tree(+1,0,-2,1,1,1, 0);
-   // tree(-3,0,-1,1.5,1.5,1.5,0);
-   // tree(-3,0,-1,1.5,1.5,1.5,0);
-   // shrub(2.5,0,2.5,1,1,1,0);
-   // Solidhouse(1,0,1,1.5,1.5,1.5,0,180);
-   // Solidhouse(-2,0,1,2.5,1,1,0, 90);
-   // grass(0,0,0,1,1,1,0);
+
+
 
    //  Draw axes - no lighting from here on
    glDisable(GL_LIGHTING);
-   falcon1(-6.669, 4.2,0,1,1,1,0);
+   
+   //  Draw scene !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   falcon1(-5.0, 0,0,1,1,1,0);
+   //body_cone(0,0,0, 2, .5, 2,160,270,0);
+   // body_cone(double x, double y, double z, double dx, double dy, double dz,double deg_cir, double x_rot, double z_rot)
+   
    glColor3f(1,1,1);
    if (axes)
    {
