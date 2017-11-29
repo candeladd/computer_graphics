@@ -374,11 +374,10 @@ static void ball(double x,double y,double z,double r)
  *	radius (GLFloat) - the radius that the painted circle will have
  */
 void drawHollowCircle(GLfloat x, GLfloat y, double dx, double dy, double dz,
-					GLfloat radius, double th, double sh){
+					GLfloat radius, double th){
 	glPushMatrix();
 	glTranslated(dx, dy, dz);
-	glRotated(th,1,0,0);
-	glRotated(sh,0,1,0);  
+	glRotated(th,1,0,0); 
 	int i;
 	int lineAmount = 100; //# of triangles used to draw circle
 	
@@ -488,16 +487,16 @@ void static tunl_hull_conn(double x, double y, double z,
    glVertex3d(8.2, -.731,0.0);
    glEnd();
    glBegin(GL_POLYGON);
-   glVertex3d(6.269, -7.35,0.16);
-   glVertex3d(6.269, -7.35,-1.16);
+   glVertex3d(6.269, -7.35,0.1);
+   glVertex3d(6.269, -7.35,-1.1);
    glVertex3d(6.07, -7.95,-1);
    glVertex3d(6.07, -7.95,0.0);
    glEnd();
    glBegin(GL_POLYGON);
-   glVertex3d(8.069, -7.34,0.08);
-   glVertex3d(8.069, -7.34,-1.08);
-   glVertex3d(8.2, -7.675,-1.0);
-   glVertex3d(8.2, -7.675,0.0);
+   glVertex3d(8.069, -7.35,0.05);
+   glVertex3d(8.069, -7.35,-1.05);
+   glVertex3d(8.2, -7.6,-1.0);
+   glVertex3d(8.2, -7.68,0.0);
    glEnd();
    glPopMatrix();
 }	
@@ -692,7 +691,7 @@ void static falcon1(double x, double y, double z,
    cock_pit_body2(3.299, -0.28, 0.5, 1, 1, 0, 90, 90, 0.8, 0.8, 1.5, 50, 10);
    glColor3f(0,0,1);
    //cock pit cone
-   cock_pit_body2(1.789, -0.2799, 0.5, 1, 1, 0, 90, 90, 0.5, 0.8, 1.5, 50, 10);
+   cock_pit_body2(1.789, -0.28, 0.5, 1, 1, 0, 90, 90, 0.5, 0.8, 1.5, 50, 10);
    glColor3f(1,1,1);
    // join cock pit sections
    sphere1(4.779,-0.28,0.5,0.8);
@@ -700,9 +699,8 @@ void static falcon1(double x, double y, double z,
    // escape pods
    //cock_pit_body2(7.15,-.5,-.5,1,0,0,90,0, .7, .8, 1, 50, 10);
    //cock_pit_body2(7.15,-7,-.5,1,0,0,90,0, .8, .7, 1, 50, 10);
-   //drawHollowCircle(0,0, 7.15, -.5, -.5, .7,90,0);
-   //drawHollowCircle(0,0, 7.15, -8, -.5, .7,90,0);
-   drawHollowCircle(0,0,1.79,-.28,.5,.5,0,90);
+   //drawHollowCircle(0,0, 7.15, -.5, -.5, .7,90);
+   //drawHollowCircle(0,0, 7.15, -8, -.5, .7,90);
    tunl_hull_conn(0,0,0,0,0,0);
 
 
@@ -788,7 +786,7 @@ void display()
    glDisable(GL_LIGHTING);
 
    //  Draw scene !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   falcon1(-4, 0,-4,1,1,1,270);
+   falcon1(-12, 0,-4,1,1,1,270);
 
    glColor3f(1,1,1);
    if (axes)
