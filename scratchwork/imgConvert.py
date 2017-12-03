@@ -3,9 +3,9 @@ import argparse
 import os
 
 def convert_img(old_name, new_name, h, w):
-	img = Image.open("/home/user/cgra/computer_graphics/HW6/" + old_name)
+	img = Image.open("/home/user/cgra/computer_graphics/scratchwork/" + old_name)
 	new_img = img.resize( (h, w) )
-	new_img.save( "/home/user/cgra/computer_graphics/HW6/" +new_name + '.bmp' )
+	new_img.save( "/home/user/cgra/computer_graphics/scratchwork/" +new_name + '.bmp' )
 	#os.remove("/home/user/cgra/computer_graphics/HW6/" + old_name)
 
 if __name__ == '__main__':
