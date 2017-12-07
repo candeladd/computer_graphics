@@ -1,4 +1,8 @@
 /*
+ * help from Thabang Ngazimbi opengl-flight-simulator
+ */
+
+/*
  *  Lighting
  *
  *  Demonstrates basic lighting using a sphere and a cube.
@@ -23,11 +27,54 @@
  */
 #include "CSCIx229.h"
 #include <math.h>
+#include "Common.h"
+
 
 #define PI 3.14159265358979323846
 /*  D degrees of rotation */
 #define DEF_D 5
-int fp=1;         //  change 
+/***************************************************************/
+/******************** GLOBAL DEFINITIONS  **********************/
+/***************************************************************/
+#define MY_MAX(A,B) ((A) >= (B) ? (A) : (B))
+
+/* my constants for GLUT window defaults */
+#define MY_WIND_X_SIZE     600
+#define MY_WIND_Y_SIZE     600
+#define MY_WIND_X_POS      100
+#define MY_WIND_Y_POS      100
+#define Radius 10
+
+/* my menu IDs for GLUT menu-handling functions */
+#define MY_MENU_EXIT     -9999
+#define MY_MENU_LIGHT       30
+#define MY_MENU_OBJECT      40
+#define MY_ROT_LIGHT        50
+#define MY_MENU_PROJECT    100
+
+const double plane_angle = 0.5;
+double movex = 0;
+
+/*****************************************************************/
+/******************** FUNCTION DEFINITIONS ***********************/
+/*****************************************************************/
+/*
+ * */
+
+static void Sky(double D);
+static void ball(double x,double y,double z,double r);
+void display();	
+void idle();
+void key(unsigned char ch,int x,int y);
+
+void initNew();
+void reshape(int width,int height);
+void timer(int toggle);
+void special(int key,int x,int y);
+void vec_mat_mult( GLfloat M[], GLfloat vec[], GLfloat out_vec[]);
+GLfloat renderingOptions[] = { GL_FILL, GL_LINE };
+
+//int fp=1;         //  change 
 int axes=1;       //  Display axes
 int mode=1;       //  Projection mode
 int ship=1;       //  toggle between cockpit and 3rd person
@@ -40,13 +87,6 @@ double dim=12.0;   //  Size of world
 
 //first person aspects
 int spin=0;    //  Rotation for first person
-double fov=55;       //  Field of view (for perspective) 
-double Ex = 0;
-double Ey = .5;
-double Ez = 5;
-double Cx = 0; 
-double Cz = 0;
-
 
 // Light values
 int one       =   1;  // Unit value
@@ -59,11 +99,14 @@ int ambient   =  30;  // Ambient intensity (%)
 int diffuse   = 100;  // Diffuse intensity (%)
 int specular  =   0;  // Specular intensity (%)
 int shininess =   0;  // Shininess (power of two)
-float shiny   =   1;  // Shininess (value)
 int zh        =  200;  // Light azimuth
 float ylight  =   0;  // Elevation of light
 unsigned int texture[12];
 unsigned int sky[5];
+
+/* 3D Projection */
+static GLdouble XCamera, YCamera, ZCamera;
+static GLdouble FOVangle, FOVratio, ClipNear, ClipFar;
 
 // ship movements
 int    fly=0;    //  Animated flight
@@ -71,26 +114,107 @@ double roll=0;   //  Roll angle
 double pitch=0;  //  Pitch angle
 double yaw=0;    //  Yaw angle
 int    pwr=100;  //  Power setting (%)
-double X  = 0;   //  Location
-double Y  = 0;   //  Location
-double Z  = 0;   //  Location
-double Dx = 1;   //  Direction
-double Dy = 0;   //  Direction
-double Dz = 0;   //  Direction
-double Sx = 1;   //  Sideways
-double Sy = 0;   //  Sideways
-double Sz = 0;   //  Sideways
-double Ux = 1;   //  Up
-double Uy = 0;   //  Up
-double Uz = 0;   //  Up
-double Ox = 0;   //  LookAt
-double Oy = 0;   //  LookAt
-double Oz = 0;   //  LookAt
-double EEx = 1;   //  Eye
-double EEy = 1;   //  Eye
-double EEz = 1;   //  Eye
 
 
+static GLfloat LightPos0[4];
+
+static GLfloat LightPos1[4];
+
+// new vars
+static GLfloat rot_angle = 0.0;
+
+static GLfloat sunMatrix[16] = {1,0,0,0,  0,1,0,0, 0,0,1,0, 0,0,0,1};
+
+static GLfloat planeMatrix[16] = {1,0,0,0,  0,1,0,0, 0,0,1,0, 0,0,0,1};
+
+static GLfloat azumMatrix[16] = {1,0,0,0,  0,1,0,0, 0,0,1,0, 0,0,0,1};
+
+GLfloat gRotationMatrix[16] = {1, 0, 0, 0,
+			       0, 1, 0, 0,
+			       0, 0, 1, 0,
+			       0, 0, 0, 1};
+			       
+double  position[3] = {0,0,0};			       	       
+double  forward[3] = {0, 0, -1};
+double  up[3] = {0, 1, 0};
+double  right[3] = {1, 0, 0};
+double  speed = 0.01;
+			      
+static float plane_pos[3] = { 0.0, 0.0, 0.0 };
+
+static GLint pov = 1;
+
+// transformations
+static GLdouble  TX=0, TY=0, TZ=0;
+
+/* user interaction */
+static GLint InteractionMode;
+static GLint XmouseDown, YmouseDown;
+static GLint XmouseCurrent, YmouseCurrent;
+static GLint XmousePrev, YmousePrev, DX, DY;
+static GLint WindHeight, WindWidth;
+static GLint KeybModifiers;
+static GLint mouseButtons = 0;
+
+float normal[3] = {1.0,0.0,0.0};
+
+//GLMmodel* pmodel = NULL;
+//GLMmodel* smodel = NULL;
+
+
+/* calculate how the change in pitch effects flight*/
+void static Pitch(double angle)
+{
+   forward[0] = forward[0] * cos(angle) + up[0] * sin(angle);
+   forward[1] = forward[1] * cos(angle) + up[1] * sin(angle);
+   forward[2] = forward[2] * cos(angle) + up[2] * sin(angle);
+   double D = sqrt(forward[0]*forward[0]+forward[1]*forward[1]+forward[2]*forward[2]);
+   forward[0] = forward[0] / D;
+   forward[1] = forward[1] / D;
+   forward[2] = forward[2] / D;
+   up[0] =  up[1] *forward[2] - up[2]* forward[1]; 
+   up[1] = up[2] *forward[0] - up[0]* forward[2]; 
+   up[2] = up[0] *forward[1] - up[1]* forward[0]; 
+}
+
+void static Roll(double angle)
+{
+   right[0] = right[0] * cos(angle) + up[0] * sin(angle);
+   right[1] = right[1] * cos(angle) + up[1] * sin(angle);
+   right[2] = right[2] * cos(angle) + up[2] * sin(angle);
+   double D = sqrt(right[0]*right[0]+right[1]*right[1]+right[2]*right[2]);
+   right[0] = right[0] / D;
+   right[1] = right[1] / D;
+   right[2] = right[2] / D;
+   up[0] =  up[1] *right[2] - up[2]* right[1];
+   up[1] = up[2] *right[0] - up[0]* right[2];
+   up[2] = up[0] *right[1] - up[1]* right[0];
+}
+
+void static Yaw(double angle)
+{
+   right[0] = right[0] * cos(angle) + forward[0] * sin(angle);
+   right[1] = right[1] * cos(angle) + forward[1] * sin(angle);
+   right[2] = right[2] * cos(angle) + forward[2] * sin(angle);
+   double D = sqrt(right[0]*right[0]+right[1]*right[1]+right[2]*right[2]);
+   right[0] = right[0] / D;
+   right[1] = right[1] / D;
+   right[2] = right[2] / D;
+   up[0] =  up[1] *right[2] - up[2]* right[1];
+   up[1] = up[2] *right[0] - up[0]* right[2]; 
+   up[2] = up[0] *right[1] - up[1]* right[0]; 
+}
+
+void vec_mat_mult( GLfloat M[], GLfloat vec[], GLfloat out_vec[]){
+
+  out_vec[0] = M[0]*vec[0] + M[4]*vec[1] + M[8]*vec[2] + M[12]*vec[3] ;
+  out_vec[1] = M[1]*vec[0] + M[5]*vec[1] + M[9]*vec[2] + M[13]*vec[3] ;
+  out_vec[2] = M[2]*vec[0] + M[6]*vec[1] + M[10]*vec[2] + M[14]*vec[3] ;
+  out_vec[3] = M[3]*vec[0] + M[7]*vec[1] + M[11]*vec[2] + M[15]*vec[3] ;
+
+  return;
+
+}
 
 /*
  *  Draw vertex in polar coordinates with normal
@@ -106,7 +230,7 @@ static void Vertex(double th,double ph)
    glVertex3d(x,y,z);
 }
 
-void static body_cone(double x, double y, double z, double dx, double dy, double dz, 
+void body_cone(double x, double y, double z, double dx, double dy, double dz, 
 							 double deg_cir, double x_rot, double z_rot)
 {
   /* cone */
@@ -140,7 +264,7 @@ void static body_cone(double x, double y, double z, double dx, double dy, double
     glPopMatrix();
 }
 
-void static body_mid_sect(double x, double y, double z,
+void body_mid_sect(double x, double y, double z,
 						  double dx, double dy, double dz,
 						  double deg_cir, double x_rot, double z_rot)
 {
@@ -167,9 +291,6 @@ void static body_mid_sect(double x, double y, double z,
  *
  *   @parameter1: radius = The radius of cylinder
  *   @parameter2: height = Height of the cylinder
- *   @parameter3: R = Red value of the cylinder's color
- *   @parameter4: G = Green value of the cylinder's color
- *   @parameter5: B = Blue value of the cylinder's color
  *
  *   @return: Nothing
 */
@@ -284,9 +405,6 @@ void cock_pit_body2(GLfloat x,
  *
  *   @parameter1: radius = The radius of cylinder
  *   @parameter2: height = Height of the cylinder
- *   @parameter3: R = Red value of the cylinder's color
- *   @parameter4: G = Green value of the cylinder's color
- *   @parameter5: B = Blue value of the cylinder's color
  *
  *   @return: Nothing
 */
@@ -337,7 +455,7 @@ void draw_cylinder_no_top(GLfloat x,
  *     at (x,y,z)
  *     radius (r)
  */
-static void sphere1(double x,double y,double z,double r)
+void sphere1(double x,double y,double z,double r)
 {
    int th,ph;
    float yellow[] = {0.0,1.0,0.0,1.0};
@@ -367,41 +485,6 @@ static void sphere1(double x,double y,double z,double r)
 }
 
 
-/*
- *  Draw a ball
- *     at (x,y,z)
- *     radius (r)
- */
-static void ball(double x,double y,double z,double r)
-{
-   int th,ph;
-   float yellow[] = {1.0,1.0,0.0,1.0};
-   float Emission[]  = {0.0,0.0,0.01*emission,1.0};
-   //  Save transformation
-   glPushMatrix();
-   //  Offset, scale and rotate
-   glTranslated(x,y,z);
-   glScaled(r,r,r);
-   //  White ball
-   glColor3f(1,1,1);
-   glMaterialf(GL_FRONT,GL_SHININESS,shiny);
-   glMaterialfv(GL_FRONT,GL_SPECULAR,yellow);
-   glMaterialfv(GL_FRONT,GL_EMISSION,Emission);
-   //  Bands of latitude
-   for (ph=-90;ph<90;ph+=inc)
-   {
-      glBegin(GL_QUAD_STRIP);
-      for (th=0;th<=360;th+=2*inc)
-      {
-         Vertex(th,ph);
-         Vertex(th,ph+inc);
-      }
-      glEnd();
-   }
-   //  Undo transofrmations
-   glPopMatrix();
-}
-
 
 /*
  * Function that handles the drawing of a circle using the line loop
@@ -413,7 +496,8 @@ static void ball(double x,double y,double z,double r)
  *	radius (GLFloat) - the radius that the painted circle will have
  */
 void drawHollowCircle(GLfloat x, GLfloat y, double dx, double dy, double dz,
-					GLfloat radius, double th, double sh){
+					GLfloat radius, double th, double sh)
+{
 	glPushMatrix();
 	glTranslated(dx, dy, dz);
 	glRotated(th,1,0,0);
@@ -437,7 +521,8 @@ void drawHollowCircle(GLfloat x, GLfloat y, double dx, double dy, double dz,
 }
 
 void drawHollowpitCircle(GLfloat x, GLfloat y, double dx, double dy, double dz,
-					GLfloat radius, double th, double sh){
+					GLfloat radius, double th, double sh)
+{
 	glPushMatrix();
 	glNormal3f(0,0,1);
 	int i;
@@ -458,7 +543,7 @@ void drawHollowpitCircle(GLfloat x, GLfloat y, double dx, double dy, double dz,
     glPopMatrix();
 }
 
-void static reactcore(double x, double y, double z,
+void reactcore(double x, double y, double z,
 				  double dx, double dy, double dz,
 				  double th, unsigned int duralloy)
 {
@@ -480,7 +565,7 @@ void static reactcore(double x, double y, double z,
    glPopMatrix();
 }
 
-void static corewalls(double x, double y, double z,
+void corewalls(double x, double y, double z,
 				  double dx, double dy, double dz,
 				  double th)
 {
@@ -532,7 +617,7 @@ void static corewalls(double x, double y, double z,
  * connects the tunnel portion to the exterior hull of the ship
  * 
  */
-void static tunl_hull_conn(double x, double y, double z, 
+void tunl_hull_conn(double x, double y, double z, 
 				   double dx, double dy, double dz, unsigned int duralloy)
 {
    glPushMatrix();
@@ -574,7 +659,7 @@ void static tunl_hull_conn(double x, double y, double z,
    glPopMatrix();
 }	
 			   				   
-void static tunnel(double x, double y, double z, 
+void tunnel(double x, double y, double z, 
 				   double dx, double dy, double dz,
 				   double th, double sh)
 {
@@ -632,7 +717,7 @@ void static tunnel(double x, double y, double z,
    glEnd();
    glPopMatrix();
 }
-void static fronts_piece(double x, double y, double z,
+void fronts_piece(double x, double y, double z,
 				  double dx, double dy, double dz,
 				  double th)
 {
@@ -696,7 +781,7 @@ void static fronts_piece(double x, double y, double z,
    glEnd();
    glPopMatrix();
 }
-void static cockpit()
+void cockpit()
 {
    //  Screen edge
    float w = asp>2 ? asp : 2;
@@ -792,11 +877,16 @@ void static cockpit()
    glPopAttrib();
 	
 }
+
+
+
+
+
 void static compile_falcon()
 {
-	double x = -4;
+	double x = 4;
 	double y = 0;
-	double z = -4;
+	double z = 4;
 	double dx = 1;
 	double dy = 1;
     double dz = 1;
@@ -804,9 +894,12 @@ void static compile_falcon()
    glPushMatrix();
    //  Offset, scale and rotate
    glTranslated(x,y,z);
+   glRotated(th,1,0,0);
+   glRotated(-90,0,0,1);
+
    //glRotated(sh,0,1,0);
 
-   glRotated(th,1,0,0);
+
    glScaled(dx,dy,dz);
    //should make metal shine
    float white[] = {1,1,1,1};
@@ -899,11 +992,46 @@ void static compile_falcon()
    glPopMatrix();
 }
 
+/*
+ *  Draw a ball
+ *     at (x,y,z)
+ *     radius (r)
+ */
+void ball(double x,double y,double z,double r)
+{
+   int th,ph;
+   float yellow[] = {1.0,1.0,0.0,1.0};
+   float Emission[]  = {0.0,0.0,0.01*emission,1.0};
+   //  Save transformation
+   glPushMatrix();
+   //  Offset, scale and rotate
+   glTranslated(x,y,z);
+   glScaled(r,r,r);
+   //  White ball
+   glColor3f(1,1,1);
+   glMaterialfv(GL_FRONT,GL_SHININESS,shiny);
+   glMaterialfv(GL_FRONT,GL_SPECULAR,yellow);
+   glMaterialfv(GL_FRONT,GL_EMISSION,Emission);
+
+   //  Bands of latitude
+   for (ph=-90;ph<90;ph+=inc)
+   {
+      glBegin(GL_QUAD_STRIP);
+      for (th=0;th<=360;th+=2*inc)
+      {
+         Vertex(th,ph);
+         Vertex(th,ph+inc);
+      }
+      glEnd();
+   }
+   //  Undo transofrmations
+   glPopMatrix();
+}
 
 /* 
  *  Draw sky box
  */
-static void Sky(double D)
+void Sky(double D)
 {
    glColor3f(1,1,1);
    glEnable(GL_TEXTURE_2D);
@@ -951,62 +1079,15 @@ static void Sky(double D)
 
    glDisable(GL_TEXTURE_2D);
 }
-/*
- *  Draw Flight
- */
-static void DrawFlight(double x0,double y0,double z0,
-                       double dx,double dy,double dz,
-                       double ux,double uy,double uz)
-{
-   int i =1;
-   //  Position of members
-   double X[] = {-1.0,+1.0,+0.0,+0.0};
-   double Y[] = {-0.3,+0.3,+0.0,+0.0};
-   double Z[] = {+0.0,+0.0,-1.5,+1.5};
-   //  Unit vector in direction of flght
-   double D0 = sqrt(dx*dx+dy*dy+dz*dz);
-   double X0 = dx/D0;
-   double Y0 = dy/D0;
-   double Z0 = dz/D0;
-   //  Unit vector in "up" direction
-   double D1 = sqrt(ux*ux+uy*uy+uz*uz);
-   double X1 = ux/D1;
-   double Y1 = uy/D1;
-   double Z1 = uz/D1;
-   //  Cross product gives the third vector
-   double X2 = Y0*Z1-Y1*Z0;
-   double Y2 = Z0*X1-Z1*X0;
-   double Z2 = X0*Y1-X1*Y0;
-   //  Rotation matrix
-   double M[16] = {X0,Y0,Z0,0 , X1,Y1,Z1,0 , X2,Y2,Z2,0 , 0,0,0,1};
-
-   //  Save current transforms
-   glPushMatrix();
-   //  Offset and rotate
-   glTranslated(x0,y0,z0);
-   glMultMatrixd(M);
 
 
-      //  Draw
-
-   glPushMatrix();
-   //glTranslated(X[i],Y[i],Z[i]);
-   glRotated(yaw,0,1,0);
-   glRotated(pitch,0,0,1);
-   glRotated(roll,1,0,0);
-   //float power[] = {0.01*pwr,0.01*pwr,0.01*pwr,1};
-   //glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,power);
-   compile_falcon();
-   glPopMatrix();
-
-   //  Undo transformations
-   glPopMatrix();
-}
+#define   DEGTORAD  (3.14/180.0)
+#define   SPEED     0.05
+static float  sun_angle = 0.0 ;
 
 /*
  *  GLUT calls this routine every 50ms
  */
- 
 void timer(int toggle)
 {
    //  Toggle movement
@@ -1018,89 +1099,74 @@ void timer(int toggle)
    //  Animate flight using Lorenz transform
    if (fly)
    {
-      //  Lorenz integration parameters
-      double dt = 0.003;
-      double s = -1.7;
-      double b = 2.66;
-      double r = 50;
-      //  Old vectors
-      double D,Nx,Ny,Nz;
-      double Dx0 = Dx;
-      double Dy0 = Dy;
-      double Dz0 = Dz;
-      double Ux0 = Ux;
-      double Uy0 = Uy;
-      double Uz0 = Uz;
-      //  Fix degenerate case
-      if (X==0 && Y==0 && Z==0) Y = Z = 40;
-      //  Update position
-      Dx = s*(Y-X);
-      Dy = X*(r-Z)-Y;
-      Dz = X*Y - b*Z;
-      X += dt*Dx;
-      Y += dt*Dy;
-      Z += dt*Dz;
-      //  Normalize DX
-      D = sqrt(Dx*Dx+Dy*Dy+Dz*Dz);
-      Dx /= D;
-      Dy /= D;
-      Dz /= D;
-      //  Calculate sideways
-      Sx  = Dy0*Dz-Dz0*Dy;
-      Sy  = Dz0*Dx-Dx0*Dz;
-      Sz  = Dx0*Dy-Dy0*Dx;
-      //  Calculate Up
-      Ux  = Dz*Sy - Dy*Sz;
-      Uy  = Dx*Sz - Dz*Sx;
-      Uz  = Dy*Sx - Dx*Sy;
-      //  Normalize Up
-      D = sqrt(Ux*Ux+Uy*Uy+Uz*Uz);
-      Ux /= D;
-      Uy /= D;
-      Uz /= D;
-      //  Eye and lookat position
-      EEx = X-7*Dx;
-      EEy = Y-7*Dy;
-      EEz = Z-7*Dz;
-      Ox = X;
-      Oy = Y;
-      Oz = Z;
-      //  Next DX
-      Nx = s*(Y-X);
-      Ny = X*(r-Z)-Y;
-      Nz = X*Y - b*Z;
-      //  Pitch angle
-      pitch = 180*acos(Dx*Dx0+Dy*Dy0+Dz*Dz0);
-      //  Roll angle
-      D = (Ux*Ux0+Uy*Uy0+Uz*Uz0) / (Dx*Dx0+Dy*Dy0+Dz*Dz0);
-      if (D>1) D = 1;
-      roll = (Nx*Sx+Ny*Sy+Nz*Sz>0?+1:-1)*960*acos(D);
-      //  Yaw angle
-      yaw = 0;
-      //  Power setting (0-1)
-      if (Dy>0.8)
-         pwr = 100;
-      else if (Dy>-0.2)
-	 pwr = 20+100*Dy;
-      else
-	 pwr = 0;
+      //movex +=.05;
+      //position[0] += speed *forward[0] + speed *up[0] + speed *right[0];
+      //position[1] += speed *forward[1] + speed *up[1] + speed *right[1];
+      //position[2] += speed *forward[2] + speed *up[2] + speed *right[2];
+      
+		float centerX = appWidth / 2.0f;
+		float distanceX = (centerX - lastMouseX) / appWidth;
+		planeRotation += distanceX / (10.5 * (planeSpeed + 1));
+
+		planeTilt = distanceX * 40.0f;
+
+		if (boolAccelerate == 1 && planeSpeed <= planeMaxSpeed - planeAcc) {
+			planeSpeed += planeAcc;
+		} else if (boolDeaccelerate == 1
+				&& planeSpeed >= planeMinSpeed + planeDeacc) {
+			planeSpeed -= planeDeacc;
+		}
+		//if alternate controls are enabled
+		if (toggleAltControls == 0) {
+			if (boolMoveUp == 1) {
+				eyeY += planeRiseSpeed;
+				atY += planeRiseSpeed;
+			} else if (boolMoveDown == 1) {
+				eyeY -= planeFallSpeed;
+				atY -= planeFallSpeed;
+			}
+		} else {
+			float centerY = appHeight / 2.0f;
+			float distanceY = (centerY - lastMouseY) / appHeight;
+			planeYawRotation += distanceY / (20 * (planeSpeed + 1));
+			if (planeYawRotation > 1) {
+				planeYawRotation = 1;
+			} else if (planeYawRotation < -1) {
+				planeYawRotation = -1;
+			}
+
+			eyeY += (sin(planeYawRotation) * (planeSpeed + 1)) / 10.0f;
+			atY = eyeY + (sin(planeYawRotation) * 10.0f);
+
+		}
+		//move the camera based on circles using plane speed as the radius
+		eyeX += (sin(planeRotation) * (planeSpeed + 1)) / 10.0f;
+		eyeZ += (cos(planeRotation) * (planeSpeed + 1)) / 10.0f;
+		//always look 10 units ahead
+		atX = eyeX + (sin(planeRotation) * 10.0f);
+		atZ = eyeZ + (cos(planeRotation) * 10.0f);
+
+		if (eyeY < 2) {
+			alive = 0;
+			explosionScale = 0.0f;
+			exploding = 1;
+			eyeY = 2;
+		}
+	     gluLookAt(eyeX, eyeY, eyeZ, /* eye */
+	     atX, atY, atZ, /* looking at*/
+	     0.0, 1.0, 0.0);
+		
    }
-   //  Static Roll/Pitch/Yaw
-   else
-   {
-      EEx = -2*dim*Sin(th)*Cos(ph);
-      EEy = +2*dim        *Sin(ph);
-      EEz = +2*dim*Cos(th)*Cos(ph);
-      Ox = Oy = Oz = 0;
-      X = Y = Z = 0;
-      Dx = 1; Dy = 0; Dz = 0;
-      Ux = 0; Uy = 1; Uz = 0;
-   }
-   //  Set timer to go again
-   if (move && toggle>=0) glutTimerFunc(50,timer,0);
-   //  Tell GLUT it is necessary to redisplay the scene
+	   
+
    glutPostRedisplay();
+   //  Set timer to go again
+   if (move && toggle>=0) glutTimerFunc(10,timer,0);
+   //  Tell GLUT it is necessary to redisplay the scene
+   
 }
+
+
 
 
 /*
@@ -1114,35 +1180,21 @@ void display()
    //  Enable Z-buffering in OpenGL
    glEnable(GL_DEPTH_TEST);
 
-   //  Undo previous transformations
+   glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
-   //  Perspective - set eye position
-   if (fp) 
-   {
-      Cx = +2*dim*Sin(spin); // Change camera dimensions 
-      Cz = -2*dim*Cos(spin);
+   
+   /*
+   double Ex = -2*dim*Sin(th)*Cos(ph);
+   double Ey = +2*dim        *Sin(ph);
+   double Ez = +2*dim*Cos(th)*Cos(ph);
+   double Ox = 0;
+   double Oy = 0;
+   double Oz = 0;
+   double Ux = 0; double Uy = 1; double Uz = 0;
+   gluLookAt(Ex,Ey,Ez , Ox,Oy,Oz , Ux,Uy,Uz);
+   */  
 
-      gluLookAt(Ex,Ey,Ez, Cx+Ex,Ey,Cz+Ez, 0,1,0); //  Use gluLookAt
-   }
-   else
-   { 
-      if (mode)
-      {
-         double Ex = -2*dim*Sin(th)*Cos(ph);
-         double Ey = +2*dim        *Sin(ph);
-         double Ez = +2*dim*Cos(th)*Cos(ph);
-         gluLookAt(Ex,Ey,Ez , 0,0,0 , 0,Cos(ph),0);
-     }
-      //  Orthogonal - set world orientation
-      else
-      {
-         glRotatef(ph,1,0,0);
-         glRotatef(th,0,1,0);
-      }
-   }
-   //  Flat or smooth shading
-   glShadeModel(smooth ? GL_SMOOTH : GL_FLAT);
-
+   Sky(3.5*dim);
    //  Light switch
    if (light)
    {
@@ -1185,21 +1237,43 @@ void display()
 
    
       case 1:
-         //  Draw flight of F16s
-         DrawFlight(X,Y,Z , Dx,Dy,Dz , Ux,Uy,Uz);
-         //compile_falcon();
-         break;
+
+         //glTranslated(position[0], position[1], position[2]);
+         //glTranslated(up[0], up[1], up[2]);
+         //glTranslated(right[0], right[1], right[2]);
+         //glRotated(yaw, 1,0,0);
+         //glRotated(roll, 0, 1, 0);
+         //glRotated(pitch, 0, 0, 1);
+
+         //glScalef(0.75, 0.75, 0.75);
+         glPushMatrix();
+         	//set up camera
+	     //gluLookAt(eyeX, eyeY, eyeZ, /* eye */
+	     //atX, atY, atZ, /* looking at*/
+	     //0.0, 1.0, 0.0);
+		 float rotationDeg=(planeRotation * 180.0f /M_PI);
+		 glTranslatef(eyeX+((atX-eyeX)/2.0f), eyeY+((atY-eyeY)/2.0f)-2,eyeZ+((atZ-eyeZ)/2.0f));
+	 	 glScalef(0.8f, 0.8f, 0.8f);
+		 glRotatef(rotationDeg, 0, 1, 0);
+		 glRotatef(-planeTilt, 0, 0, 1);
+		 if (toggleAltControls == 1) {
+			 glRotatef(-planeYawRotation * 30.0f, 1, 0, 0);
+	 	}
+ 
+	  	 glRotatef(90, 0, 1, 0);
+
+        compile_falcon();
+
+		glPopMatrix();
+        break;
 	}
 
 
 
    //  Draw axes - no lighting from here on
    glDisable(GL_LIGHTING);
-	Sky(3.5*dim);
-   //  Draw scene !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-   //falcon1(-4, 0,-4,1,1,1,270);
-	
    glColor3f(1,1,1);
+   
    if (axes)
    {
       glBegin(GL_LINES);
@@ -1218,20 +1292,17 @@ void display()
       glRasterPos3d(0.0,0.0,len);
       Print("Z");
    }
-
-
-
- 
-      //  Display parameters
+   
+   //  Display parameters
    glWindowPos2i(5,5);
-   Print("Angle=%d,%d  Dim=%.1f FOV=%d Projection=%s Light=%s",
-   th,ph,dim,fov,mode?"Perpective":"Orthogonal",light?"On":"Off");
+   Print("Ambient=%d",ambient);
+   ;
    if (light)
    {
       glWindowPos2i(5,45);
       Print("Model=%s Distance=%d Elevation=%.1f",smooth?"Smooth":"Flat",distance,ylight);
       glWindowPos2i(5,25);
-      Print("Ambient=%d  Diffuse=%d Specular=%d Emission=%d Shininess=%.0f",ambient,diffuse,specular,emission,shiny);
+      Print("Ambient=%d  Diffuse=%d Specular=%d Emission=%d Shininess=%.0f",position[0],diffuse,specular,emission,shiny);
    }
 
 	
@@ -1240,6 +1311,10 @@ void display()
    glFlush();
    glutSwapBuffers();
 }
+
+
+
+
 
 /*
  *  GLUT calls this routine when the window is resized
@@ -1253,9 +1328,11 @@ void idle()
    glutPostRedisplay();
 }
 
+
+
 /*
  *  GLUT calls this routine when an arrow key is pressed
- */
+ *
 void special(int key,int x,int y)
 {
    //  Right arrow key - increase angle by 5 degrees
@@ -1281,20 +1358,20 @@ void special(int key,int x,int y)
       distance = (distance==1) ? 8 : 1;
    //  Fly
    else if (key == GLUT_KEY_F1)
-      dim = (fly = !fly) ? 30 : 3;
+      dim = (fly = !fly) ? 30 : 12;
    //  Keep angles to +/-360 degrees
    th %= 360;
    ph %= 360;
    //  Update projection
-   Project(fp, mode?fov:0,asp,dim);
+   Project(fov,asp,dim);
    //  Tell GLUT it is necessary to redisplay the scene
-      //  Update state
+   //  Update state
    timer(-1);
 }
 
-/*
- *  GLUT calls this routine when a key is pressed
- */
+*/
+ /*  GLUT calls this routine when a key is pressed
+ *
 void key(unsigned char ch,int x,int y)
 {
    //  Exit on ESC
@@ -1302,49 +1379,115 @@ void key(unsigned char ch,int x,int y)
       exit(0);
    //  Reset view angle
    else if (ch == '0')
-      th = ph = 0;
+      th = ph = 0;   
+   //  control pitch
+   else if (ch == 'i' || ch == 'I')
+   {
+	   yaw += plane_angle;
+       Pitch(plane_angle);
+   }
+   //  control pitch down
+   else if (ch == 'k' || ch == 'K')
+   {
+		 yaw -= plane_angle;
+         Pitch(-plane_angle);
+   }
+   //  control roll left
+   else if (ch == 'j' || ch == 'J')
+   {
+      Roll(-plane_angle); 
+      roll += plane_angle;
+   }
+   //  control roll right
+   else if (ch == 'l' || ch == 'L')
+   {
+      Roll(plane_angle); 
+      roll -= plane_angle;
+   }  
+   //  control yaw left
+   else if (ch == 'h' || ch == 'H')
+   {
+	 Yaw(-plane_angle);
+     pitch -= plane_angle;
+   }
+   //  control yaw right
+   else if (ch == ';' || ch == ':')
+   {
+	 Yaw(plane_angle);
+     pitch += plane_angle;
+   }  
+   //speed up
+   else if (ch == '8')
+   {
+	speed += .05;
+   } 
+   //slow down
+   else if (ch == 'm' || ch == 'M')
+   {
+	 speed -= .05;
+   } 
    //  Toggle axes
-   else if (ch == 'x' || ch == 'X')
+   else if (ch == 'q' || ch == 'Q')
       axes = 1-axes;
    //  Toggle lighting
-   else if (ch == 'l' || ch == 'L')
+   else if (ch == '/' || ch == '?')
       light = 1-light;
    //  Toggle light movement
-   else if (ch == 'm' || ch == 'M')
-      move = 1-move;
+   //else if (ch == 'm' || ch == 'M')
+      //move = 1-move;
+   //  change rotation angle
+   else if (ch == 'w' || ch == 'W')
+   {
+       TY +=  0.01;
+   }    
+      //  change rotation angle
+   else if (ch == 's' || ch == 'S')
+   {
+      if(TY<=0.5)
+      {
+	     TY=0.5;  
+	  }
+	  else
+	  {
+         TY -=  0.05;
+      }
+   }
+   //  change rotation angle
+   else if (ch == 'a' || ch == 'A')
+   {
+	  if(rot_angle>=360.0)
+	  {
+		  rot_angle = 0.0;
+	  }
+      rot_angle +=  1.0;
+
+   }
+   //  change rotation angle
+   else if (ch == 'd' || ch == 'D')
+   {
+	  if(rot_angle<=0.0)
+	  {
+		  rot_angle = 360.0;
+	  }
+      rot_angle -=  1.0;
+
+   }
    //  Move light
    else if (ch == '<')
       zh += 1;
    else if (ch == '>')
       zh -= 1;
-      //  Toggle first person
-   else if (ch == 'f' || ch == 'F')
-      fp = 1-fp;
-   if (fp)
-   {
-      double dt = 0.05;
-      if (ch == 'u' || ch == 'U'){
-         Ex += Cx*dt;
-         Ez += Cz*dt;
-      }
-      else if (ch == 'h' || ch == 'K'){
-         spin -= 3;
-      }
-      else if (ch == 'j' || ch == 'J'){
-         Ex -= Cx*dt;
-         Ez -= Cz*dt;
-      }
-      else if (ch == 'k' || ch == 'K'){
-         spin += 3;
-      }
-   }
+ 
+   //  Toggle timer motion
+   else if (ch == 'g' || ch == 'G')
+      timer(1);
    //  Roll
    else if (ch == '4')
  	 roll -= 10;
-   else if (ch == '6')
+   else if (ch == '5')
 	 roll += 10;
    //  Pitch
-   else if (ch == '8')
+   else if (ch == '`')
 	 pitch -= 1;
    else if (ch == '2')
 	 pitch += 1;
@@ -1353,11 +1496,18 @@ void key(unsigned char ch,int x,int y)
 	 yaw -= 1;
    else if (ch == '3')
 	 yaw += 1;
-   //  Power
-   else if (ch=='<' && pwr>0)
-	 pwr -= 10;
-   else if (ch=='>' && pwr<100)
-	 pwr += 10;
+   //  global perspecive fixed
+   else if (ch == '6')
+      pov = 1;
+   //  view first person
+   else if (ch == '7')
+      pov = 2;
+   //  view above plane
+   else if (ch == '8')
+      pov = 3;
+   //  view global motion
+   else if (ch == '9')
+      pov = 4;
    //  Change field of view angle
    else if (ch == '-' && ch>1)
       fov--;
@@ -1372,19 +1522,19 @@ void key(unsigned char ch,int x,int y)
    else if (ch==']')
       ylight += 0.1;
    //  Ambient level
-   else if (ch=='a' && ambient>0)
+   else if (ch=='v' && ambient>0)
       ambient -= 5;
-   else if (ch=='A' && ambient<100)
+   else if (ch=='V' && ambient<100)
       ambient += 5;
    //  Diffuse level
-   else if (ch=='d' && diffuse>0)
+   else if (ch=='b' && diffuse>0)
       diffuse -= 5;
-   else if (ch=='D' && diffuse<100)
+   else if (ch=='B' && diffuse<100)
       diffuse += 5;
    //  Specular level
-   else if (ch=='s' && specular>0)
+   else if (ch=='n' && specular>0)
       specular -= 5;
-   else if (ch=='S' && specular<100)
+   else if (ch=='N' && specular<100)
       specular += 5;
    //  Emission level
    else if (ch=='e' && emission>0)
@@ -1399,14 +1549,167 @@ void key(unsigned char ch,int x,int y)
    //  Keep angles to +/-360 degrees
    spin %= 360;
    //  Translate shininess power to value (-1 => 0)
-   shiny = shininess<0 ? 0 : pow(2.0,shininess);
+   shiny[0] = shininess<0 ? 0 : pow(2.0,shininess);
    //  Reproject
-   Project(fp, mode?fov:0,asp,dim);
+   Project(fov,asp,dim);
    //  Animate if requested
    glutIdleFunc(move?idle:NULL);
    //  Tell GLUT it is necessary to redisplay the scene
    glutPostRedisplay();
+}*/
+
+
+/**
+ * mouseWheel
+ * Event occurs when scroll wheel is spun.
+ */
+void mouseWheel(int button, int state, int x, int y) {
+	if (toggleAltControls == 1) {
+		boolAccelerate = 0;
+		boolDeaccelerate = 0;
+		if (state == GLUT_DOWN) {
+			return;
+		}
+		if (button == 3) {
+			if (planeSpeed <= planeMaxSpeed - planeAcc) {
+				planeSpeed += planeAcc;
+			}
+		} else if (button == 4) {
+			if (planeSpeed >= planeMinSpeed + planeDeacc) {
+				planeSpeed -= planeDeacc;
+			}
+		}
+	}
 }
+/**
+ * mouseEvent
+ * Gets the mouse position
+ */
+void mouseEvent(int x, int y) {
+	lastMouseX = x;
+	lastMouseY = y;
+}
+
+/**
+ * keyUp
+ * Is called when a normal key is released.
+ * Used to toggle the various features on or off.
+ */
+void keyUp(unsigned char key, int mouseX, int mouseY) {
+	if (key == 'w') {
+		toggleWireframe = 1 - toggleWireframe;
+		glPolygonMode( GL_BACK, renderingOptions[toggleWireframe]);
+		glPolygonMode( GL_FRONT, renderingOptions[toggleWireframe]);
+	}
+	if (key == 'b') {
+		toggleFog = 1 - toggleFog;
+	}
+	if (key == 'f') {
+		toggleFullscreen = 1 - toggleFullscreen;
+		//glutFullScreenToggle();
+		//hackery because the windows freeglut doesn't have glutFullScreenToggle even though it's supposed to... ****
+		if (toggleFullscreen == 1) {
+			storedWidth = appWidth;
+			storedHeight = appHeight;
+			storedX = appX;
+			storedY = appY;
+			glutFullScreen();
+		} else {
+			glutReshapeWindow(storedWidth, storedHeight);
+			glutPositionWindow(storedX, storedY);
+			//have to do it twice because... ****ing freeglut/opengl
+			glutReshapeWindow(storedWidth, storedHeight);
+			glutPositionWindow(storedX, storedY);
+		}
+	}
+	if (key == 's') {
+		toggleGrid = 1 - toggleGrid;
+	}
+	if (key == 't') {
+		toggleMountainTextures = 1 - toggleMountainTextures;
+	}
+	if (key == 'm') {
+		toggleMountains = 1 - toggleMountains;
+	}
+	if (key == 'r') {
+		//srand(time(NULL));
+
+		//initNew();
+		eyeX = 0;
+		eyeY = 5;
+		eyeZ = -15;
+		atX = 0;
+		atY = 5;
+		atZ = -5;
+		boolAccelerate = 0;
+		boolDeaccelerate = 0;
+		boolMoveUp = 0;
+		boolMoveDown = 0;
+		boolShoot = 0;
+		planeSpeed = 1.0f;
+		planeRotation = 0.0f;
+		planeTilt = 0.0f;
+		planeYawRotation = 0.0f;
+		alive = 1;
+	}
+   if (key == 'g' || key == 'G')
+      timer(1);
+	if (key == 'q') {
+		exit(0);
+	}
+}
+/**
+ * keySpecialDown
+ * Is called when a special key is pressed.
+ * Used to move the enterprise around (while not warping).
+ */
+void keySpecialDown(int key, int mouseX, int mouseY) {
+	if (!toggleAltControls == 1) {
+		if (key == GLUT_KEY_PAGE_UP) {
+			boolAccelerate = 1;
+		}
+		if (key == GLUT_KEY_PAGE_DOWN) {
+			boolDeaccelerate = 1;
+		}
+		if (key == GLUT_KEY_UP) {
+			boolMoveUp = 1;
+		}
+		if (key == GLUT_KEY_DOWN) {
+			boolMoveDown = 1;
+		}
+	}
+	if (key == GLUT_KEY_F1) {
+		toggleAltControls = 1 - toggleAltControls;
+	}
+	if (key == GLUT_KEY_F3)
+      dim = (fly = !fly) ? 30 : 12;
+	if (key == GLUT_KEY_F2) {
+		toggleAltWeather = 1 - toggleAltWeather;
+	}
+}
+/**
+ * keySpecialUp
+ * Is called when a special key is released.
+ * Used to move the enterprise around (while not warping).
+ */
+void keySpecialUp(int key, int mouseX, int mouseY) {
+	if (!toggleAltControls == 1) {
+		if (key == GLUT_KEY_PAGE_UP) {
+			boolAccelerate = 0;
+		}
+		if (key == GLUT_KEY_PAGE_DOWN) {
+			boolDeaccelerate = 0;
+		}
+		if (key == GLUT_KEY_UP) {
+			boolMoveUp = 0;
+		}
+		if (key == GLUT_KEY_DOWN) {
+			boolMoveDown = 0;
+		}
+
+	}
+}
+
 
 /*
  *  GLUT calls this routine when the window is resized
@@ -1418,7 +1721,27 @@ void reshape(int width,int height)
    //  Set the viewport to the entire window
    glViewport(0,0, width,height);
    //  Set projection
-   Project(fp, mode?fov:0,asp,dim);
+   Project(fov,asp,dim);
+}
+
+void initGL(void) {
+
+	glClearColor(0.0f, 0.0f, 0.2f, 1.0);
+	glClearDepth(1.0f);
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+
+	glMatrixMode(GL_PROJECTION);
+	gluPerspective(fov, /* field of view in degree */
+	(float) appWidth / (float) appHeight,/* aspect ratio */
+	nearValue, farValue);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	gluLookAt(eyeX, eyeY, eyeZ, /* eye */
+	atX, atY, atZ, /* looking at*/
+	0.0, 1.0, 0.0);
 }
 
 /*
@@ -1430,13 +1753,21 @@ int main(int argc,char* argv[])
    glutInit(&argc,argv);
    //  Request double buffered, true color window with Z buffering at 600x600
    glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
-   glutInitWindowSize(700,700);
+   glutInitWindowSize(appWidth, appHeight);
    glutCreateWindow("Andrew Candelaresi Project Review");
    //  Set callbacks
    glutDisplayFunc(display);
    glutReshapeFunc(reshape);
-   glutSpecialFunc(special);
-   glutKeyboardFunc(key);
+   //glutSpecialFunc(special);
+   //glutKeyboardFunc(key);
+   glutPassiveMotionFunc(mouseEvent);
+
+   glutSpecialUpFunc(keySpecialUp);
+   glutSpecialFunc(keySpecialDown);
+
+   glutMouseFunc(mouseWheel);
+
+   glutKeyboardUpFunc(keyUp);
    glutIdleFunc(idle);
    texture[0] = LoadTexBMP("duralloy1.bmp");
    sky[0] = LoadTexBMP("hoth1.bmp");
@@ -1446,6 +1777,7 @@ int main(int argc,char* argv[])
    texture[1] = LoadTexBMP("cockpit.bmp");
    //  Set timer
    timer(1);
+   initGL();
    //  Pass control to GLUT so it can interact with the user
    ErrCheck("init");
    glutMainLoop();

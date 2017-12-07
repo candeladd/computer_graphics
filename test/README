@@ -1,0 +1,41 @@
+Project Review
+
+Andrew Candelaresi
+CSCI 5229 Fall 2017
+
+Completed
+I have created a model of the Millenium falcon from scratch, combining simple polygons,  I have also created the cockpit view, I am struggling with how to not draw the ship when in cock pit mode.
+For the purpose of the Project Review I have created a  crude sky box scene of the ice planet hoth. I have applied a metal texture to the millenium falcon
+
+TODO:
+I need to implement user controled flight in both cockpit view and third person perspective.  I also want to create world for the user to fly through using a DEM Wireframe.  I want to get better textures and more detail added to the millenium falcon as well mapping textures correctly has proven to be extremely challening.  
+
+
+To compile my project use the command:
+make
+
+to clean use the comand:
+make clean
+
+To run the project use the command:
+./falconscratch
+
+Key bindings
+  l          Toggles lighting
+  a/A        Decrease/increase ambient light
+  d/D        Decrease/increase diffuse light
+  s/S        Decrease/increase specular light
+  e/E        Decrease/increase emitted light
+  n/N        Decrease/increase shininess
+  F2         Toggle local viewer mode
+  F3         Toggle light distance (1/5)
+  m          Toggles light movement
+  []         Lower/rise light
+  p          Toggles ortogonal/perspective projection
+  +/-        Change field of view of perspective
+  x          Toggle axes
+  arrows     Change view angle
+  PgDn/PgUp  Zoom in and out
+  c          changes into cockpit view
+  0          Reset view angle
+  ESC        Exit

@@ -7,6 +7,7 @@
 #include <string.h>
 #include <math.h>
 
+
 #ifdef USEGLEW
 #include <GL/glew.h>
 #endif
@@ -27,9 +28,11 @@ extern "C" {
 void Print(const char* format , ...);
 void Fatal(const char* format , ...);
 unsigned int LoadTexBMP(const char* file);
-void Project(int fp, double fov,double asp,double dim);
+void Project(double fov,double asp,double dim);
 void ErrCheck(const char* where);
 int  LoadOBJ(const char* file);
+
+				  				   				   					
 
 #ifdef __cplusplus
 }

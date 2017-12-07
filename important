@@ -1,0 +1,5 @@
+u[0], forward[1], forward[2], up[0], up[1], up[2], right[0], right[1], right[2])
+
+"forx=%d, fory=%d, forz=%d, upx=%d, upy=%d, upz=%d, rightx=%d, righty=%d, rightz=%d"
+
+g++ -std=c++14 -O3 -Wall fly.cpp landscape.cpp -lGL -lGLU -lglut
