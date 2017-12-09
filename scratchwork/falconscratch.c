@@ -668,29 +668,29 @@ void tunnel(double x, double y, double z,
    glTranslated(x, y, z);
    glRotated(th, dx, 0,0);
    glRotated(sh, 0, dy,dz);
-   glBindTexture(GL_TEXTURE_2D, texture[0]);
+   glBindTexture(GL_TEXTURE_2D, texture[3]);
    glBegin(GL_POLYGON);
    glNormal3f(0,0,1);
-   glTexCoord2f(0.0,0.0); glVertex3d(6.669, -2.85,1.0);
-   glTexCoord2f(0.0,1.0); glVertex3d(7.669, -2.85,1.0);
-   glTexCoord2f(1.0,1.0); glVertex3d(7.669, -1,1.0);
-   glTexCoord2f(1.0,1.0); glVertex3d(6.669, -1,1.0);
+   glTexCoord2f(0.58,0.659); glVertex3d(6.669, -2.85,1.0); //1
+   glTexCoord2f(0.643,0.661); glVertex3d(7.669, -2.85,1.0); //2
+   glTexCoord2f(0.625,.915); glVertex3d(7.669, -1,1.0); //3
+   glTexCoord2f(0.563,.91); glVertex3d(6.669, -1,1.0); //4
    glEnd();
    // tunnel side 1 piece
    glBegin(GL_POLYGON);
    glNormal3f(0.92796046,  0.01958756, -0.37216356);
-   glTexCoord2f(0.0,0.0); glVertex3d(6.669, -2.85,1.0);
-   glTexCoord2f(0.0,1.0); glVertex3d(6.269, -2.9,0.0);
-   glTexCoord2f(1.0,1.0); glVertex3d(6.269, -1,0.1);
-   glTexCoord2f(1.0,0.0); glVertex3d(6.669, -1,1.0);
+   glTexCoord2f(0.58,0.659); glVertex3d(6.669, -2.85,1.0); //1
+   glTexCoord2f(0.55,.659); glVertex3d(6.269, -2.9,0.0); //2
+   glTexCoord2f(.535,.89); glVertex3d(6.269, -1,0.1);  //3
+   glTexCoord2f(.565,.915); glVertex3d(6.669, -1,1.0); //4
    glEnd();
    // tunnel side 2 piece
    glBegin(GL_POLYGON);
    glNormal3f(0.92796046, -0.01958756,  0.37216356);
-   glTexCoord2f(0.0,0.0); glVertex3d(7.669, -2.85,1.0);
-   glTexCoord2f(0.0,1.0); glVertex3d(8.069, -2.9,0.0);
-   glTexCoord2f(1.0,1.0); glVertex3d(8.069, -1,0.1);
-   glTexCoord2f(1.0,0.0); glVertex3d(7.669, -1,1.0);
+   glTexCoord2f(0.595,0.3); glVertex3d(7.669, -2.85,1.0);//1
+   glTexCoord2f(0.56,0.3); glVertex3d(8.069, -2.9,0.0); //2
+   glTexCoord2f(.57,0.1); glVertex3d(8.069, -1,0.1); //3
+   glTexCoord2f(.602,0.1); glVertex3d(7.669, -1,1.0); //4
    glEnd();
    // tunnel interieor ship piece
    glBegin(GL_POLYGON);
@@ -884,18 +884,18 @@ void cockpit()
 
 void static compile_falcon()
 {
-	double x = 4;
-	double y = 0;
-	double z = 4;
+	double x = -6;
+	double y = 2;
+	double z = 0;
 	double dx = 1;
 	double dy = 1;
     double dz = 1;
-	double th = 270;
+	double th = 0;
    glPushMatrix();
    //  Offset, scale and rotate
    glTranslated(x,y,z);
    glRotated(th,1,0,0);
-   glRotated(-90,0,0,1);
+   glRotated(0,0,0,1);
 
    //glRotated(sh,0,1,0);
 
@@ -1183,7 +1183,7 @@ void display()
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
    
-   /*
+   
    double Ex = -2*dim*Sin(th)*Cos(ph);
    double Ey = +2*dim        *Sin(ph);
    double Ez = +2*dim*Cos(th)*Cos(ph);
@@ -1192,7 +1192,7 @@ void display()
    double Oz = 0;
    double Ux = 0; double Uy = 1; double Uz = 0;
    gluLookAt(Ex,Ey,Ez , Ox,Oy,Oz , Ux,Uy,Uz);
-   */  
+     
 
    Sky(3.5*dim);
    //  Light switch
@@ -1237,7 +1237,7 @@ void display()
 
    
       case 1:
-
+         
          //glTranslated(position[0], position[1], position[2]);
          //glTranslated(up[0], up[1], up[2]);
          //glTranslated(right[0], right[1], right[2]);
@@ -1247,21 +1247,22 @@ void display()
 
          //glScalef(0.75, 0.75, 0.75);
          glPushMatrix();
-         	//set up camera
-	     //gluLookAt(eyeX, eyeY, eyeZ, /* eye */
-	     //atX, atY, atZ, /* looking at*/
+         //set up camera
+	     //gluLookAt(eyeX, eyeY, eyeZ, // eye 
+	     //atX, atY, atZ, // looking at
 	     //0.0, 1.0, 0.0);
 		 float rotationDeg=(planeRotation * 180.0f /M_PI);
-		 glTranslatef(eyeX+((atX-eyeX)/2.0f), eyeY+((atY-eyeY)/2.0f)-2,eyeZ+((atZ-eyeZ)/2.0f));
-	 	 glScalef(0.8f, 0.8f, 0.8f);
-		 glRotatef(rotationDeg, 0, 1, 0);
-		 glRotatef(-planeTilt, 0, 0, 1);
-		 if (toggleAltControls == 1) {
-			 glRotatef(-planeYawRotation * 30.0f, 1, 0, 0);
-	 	}
+		// glTranslatef(eyeX+((atX-eyeX)/2.0f), eyeY+((atY-eyeY)/2.0f)-2,eyeZ+((atZ-eyeZ)/2.0f));
+	 	 //glScalef(0.8f, 0.8f, 0.8f);
+		 //glRotatef(rotationDeg, 0, 1, 0);
+		 //glRotatef(-planeTilt, 0, 0, 1);
+		 //if (toggleAltControls == 1) 
+		 //{
+			// glRotatef(-planeYawRotation * 30.0f, 1, 0, 0);
+	 	 //}
  
-	  	 glRotatef(90, 0, 1, 0);
-
+	  	 //glRotatef(90, 0, 1, 0);
+        
         compile_falcon();
 
 		glPopMatrix();
@@ -1332,7 +1333,7 @@ void idle()
 
 /*
  *  GLUT calls this routine when an arrow key is pressed
- *
+ */
 void special(int key,int x,int y)
 {
    //  Right arrow key - increase angle by 5 degrees
@@ -1369,9 +1370,9 @@ void special(int key,int x,int y)
    timer(-1);
 }
 
-*/
+
  /*  GLUT calls this routine when a key is pressed
- *
+ */
 void key(unsigned char ch,int x,int y)
 {
    //  Exit on ESC
@@ -1556,7 +1557,7 @@ void key(unsigned char ch,int x,int y)
    glutIdleFunc(move?idle:NULL);
    //  Tell GLUT it is necessary to redisplay the scene
    glutPostRedisplay();
-}*/
+}
 
 
 /**
@@ -1739,9 +1740,9 @@ void initGL(void) {
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(eyeX, eyeY, eyeZ, /* eye */
-	atX, atY, atZ, /* looking at*/
-	0.0, 1.0, 0.0);
+	//(eyeX, eyeY, eyeZ, /* eye */
+	//atX, atY, atZ, /* looking at*/
+	//0.0, 1.0, 0.0);
 }
 
 /*
@@ -1758,14 +1759,14 @@ int main(int argc,char* argv[])
    //  Set callbacks
    glutDisplayFunc(display);
    glutReshapeFunc(reshape);
-   //glutSpecialFunc(special);
-   //glutKeyboardFunc(key);
-   glutPassiveMotionFunc(mouseEvent);
+   glutSpecialFunc(special);
+   glutKeyboardFunc(key);
+   //glutPassiveMotionFunc(mouseEvent);
 
-   glutSpecialUpFunc(keySpecialUp);
-   glutSpecialFunc(keySpecialDown);
+   //glutSpecialUpFunc(keySpecialUp);
+   //glutSpecialFunc(keySpecialDown);
 
-   glutMouseFunc(mouseWheel);
+   //glutMouseFunc(mouseWheel);
 
    glutKeyboardUpFunc(keyUp);
    glutIdleFunc(idle);
@@ -1775,6 +1776,7 @@ int main(int argc,char* argv[])
    sky[2] = LoadTexBMP("hoth3.bmp");
    sky[3] = LoadTexBMP("snow2.bmp");
    texture[1] = LoadTexBMP("cockpit.bmp");
+   texture[3] = LoadTexBMP("falctex2.bmp");
    //  Set timer
    timer(1);
    initGL();
