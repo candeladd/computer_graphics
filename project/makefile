@@ -1,5 +1,5 @@
-# Example 25
-EXE=ex25
+# Anrew Candelaresi final project
+EXE=FalconSim
 
 # Main target
 all: $(EXE)
@@ -24,16 +24,19 @@ CLEAN=rm -f $(EXE) *.o *.a
 endif
 
 # Dependencies
-ex25.o: ex25.c CSCIx229.h F16.h
-fatal.o: fatal.c CSCIx229.h
-loadtexbmp.o: loadtexbmp.c CSCIx229.h
-print.o: print.c CSCIx229.h
-project.o: project.c CSCIx229.h
-errcheck.o: errcheck.c CSCIx229.h
-object.o: object.c CSCIx229.h
+OGLFalconSim.o: OGLFalconSim.c OGLFalconSim.h Common.h
+fatal.o: fatal.c OGLFalconSim.h
+loadtexbmp.o: loadtexbmp.c OGLFalconSim.h
+print.o: print.c OGLFalconSim.h
+project.o: project.c OGLFalconSim.h
+errcheck.o: errcheck.c OGLFalconSim.h
+falcon.o: falcon.c OGLFalconSim.h Common.h
+
+
+
 
 #  Create archive
-CSCIx229.a:fatal.o loadtexbmp.o print.o project.o errcheck.o object.o
+OGLFalconSim.a:fatal.o loadtexbmp.o print.o project.o errcheck.o falcon.o
 	ar -rcs $@ $^
 
 # Compile rules
@@ -43,7 +46,7 @@ CSCIx229.a:fatal.o loadtexbmp.o print.o project.o errcheck.o object.o
 	g++ -c $(CFLG) $<
 
 #  Link
-ex25:ex25.o CSCIx229.a
+FalconSim:OGLFalconSim.o OGLFalconSim.a
 	gcc -O3 -o $@ $^   $(LIBS)
 
 #  Clean

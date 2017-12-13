@@ -1,4 +1,4 @@
-#include "CSCIx229.h"
+#include "OGLFalconSim.h"
 #include <ctype.h>
 
 //  Load an OBJ file

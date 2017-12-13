@@ -1,7 +1,7 @@
 /*
  *  Load texture from BMP file
  */
-#include "CSCIx229.h"
+#include "OGLFalconSim.h"
 
 /*
  *  Reverse n bytes

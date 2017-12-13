@@ -1,7 +1,7 @@
 /*
  *  Print message to stderr and exit
  */
-#include "CSCIx229.h"
+#include "OGLFalconSim.h"
 
 void Fatal(const char* format , ...)
 {
