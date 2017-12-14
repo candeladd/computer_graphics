@@ -1,42 +1,40 @@
 /**
- * @author	: Andrew Candelaresi
- * Flight code, bullets, and random generator from Matthew Thomas
- * Code borrowed from course examples in CSCI 5229
- * CSCI 5229 Project: Millenium Falcon Sim
- * Creates an area to fly around with in a Millenium falcon sim.
- * Generates 3 randomly generated islands.
- * Astroids used midpoints and some "jitter" to make the edges not always straight up
- * Generates normals for the Astroids per vertex.
- * w - toggles between frame and solid rendering
- * f - toggles between fullscreen and windowed mode
- * b - toggle fog on or off
- * s - toggle between grid and sea+sky
- * m - toggles Astroids on and off
- * t - toggles textures for Astroids on and off
- * q - quit
- *
- * Standard controls:
- * 	Page Up - Increase Speed
- * 	Page Down - Decrease Speed
- * 	Up - Raise elevation of plane
- * 	Down - Lower elevation of plane
- * 	mouse on left side of screen - Turn plane to the left
- * 	mouse on right side of screen - Turn plane to the right
- *
- * Bonuses:
- * 	f1 - toggle between standard and alternate controls
- * 	f2 - toggle between standard fog and cloud-like fog
- * 	z - shoot bullets
- * 	Spedometer (Shows speed roughly, green bar bottom left)
- * 	Altometer (Shows altitude roughly, blue bar bottom right)
- * 	Crash into the sea and there is an explosion + plane dies
- * 	r - respawn and generate new random world
- *	crosshair
- *
- * Alternate controls:
- *  mouse on top of screen - Tilt plane and camera up
- *  mouse on bottom of screen - Title plane and camera down
- *  scroll wheel - increase or decrease speed
+Andrew Candelaresi
+CSCI 5229 Fall 2017
+
+  Flight code, bullets borrowed from Matthew Thomas
+  Code borrowed from course examples in CSCI 5229
+  CSCI 5229 Project: Millenium Falcon Sim
+  Creates an area to fly around with in a Millenium falcon sim.
+  Generates 50 sudo random astroids with collision detection.
+  w - toggles between frame and solid rendering
+  f - toggles between fullscreen and windowed mode
+  s - toggle between grid and sea+sky
+  m - toggles Astroids on and off
+  t - toggles textures for Astroids on and off
+  q - quit
+ 
+ 
+  Standard controls:
+  	Page Up - Increase Speed
+  	Page Down - Decrease Speed
+  	Up - Raise elevation of plane
+  	Down - Lower elevation of plane
+  	mouse on left side of screen - Turn plane to the left
+  	mouse on right side of screen - Turn plane to the right
+ 
+  Bonuses:
+  	f1 - toggle between standard and alternate controls
+  	z - shoot bullets
+  	Spedometer (Shows speed roughly, green bar bottom left)
+  	Crash into the bottom of the scene or an astroid and explode
+  	r - respawn and generate new random world
+
+ 
+  Alternate controls
+   mouse on top of screen - Tilt plane and camera up
+   mouse on bottom of screen - Title plane and camera down
+   scroll wheel - increase or decrease speed
  */
 
 #include "OGLFalconSim.h"
@@ -53,6 +51,7 @@ double col_ex[1][3];
 int check_colision(double x1,double y1,double z1)
 {
    double* collision_zone;
+    
    
    for (int i = 0; i<=50; i++)
    {
@@ -61,8 +60,8 @@ int check_colision(double x1,double y1,double z1)
 	   double* y = &astroidcoords[i][1];
 	   double* z = &astroidcoords[i][2];
 
-	   double distance = sqrt((pow((*x)-x1,2))+(pow((*y)-y1,2))+(pow((*z)-z1,2)));
-	   if (distance<=*collision_zone-1)
+	   double distance = sqrt((pow((20)-x1,2))+(pow((20)-y1,2))+(pow((20)-z1,2)));
+	   if (distance<=7)
 	   {
 		 return 1;  
 	   }
@@ -511,7 +510,7 @@ void drawAstroid(double x, double y, double z, double rr) {
  * Initializes the Astroids including position and scale
  */
 void initAstroids() {
-	int mapSize = (int) AstroidDetailAccuracy;
+	
 	AstroidId = glGenLists(1);
 	glNewList(AstroidId, GL_COMPILE);
 
@@ -519,27 +518,27 @@ void initAstroids() {
 
 	glColor4f(1, 1, 1, 1);
 	int i;
-	astroidcoords[0][0] = 20.0;
-	astroidcoords[0][1] = 20.0;
-	astroidcoords[0][2] = 20.0;
-	astroidcoords[0][3] = 1.0;
-	//drawAstroid(astroidcoords[0][0],astroidcoords[0][1],astroidcoords[0][2], astroidcoords[0][3]);
 	int numAstroidss = 35;
 	//generate a certain number of Astroids
+	/*
+	glBegin(GL_POLYGON);
+     glVertex3d(0.0,0.0,0.0);
+     glVertex3d(1,0,0);
+     glVertex3d(20,20,20);
+     glVertex3d(21.0,20.0,20.0);
+    glEnd();
+	*/
+	double r = randBetween(0,10);
+	drawAstroid( 20, 20, 20, r);
 	for (i = 0; i < numAstroidss; i++) {
 		
-		//astroidcoords[i][0] = randBetween(0,mapSize);
-	    //astroidcoords[i][1] = randBetween(0,mapSize);
-	    //astroidcoords[i][2] = randBetween(0,mapSize);
-	    //astroidcoords[i][3] = randBetween(0,10);
-	     astroidcoords[i][0] = i+randBetween(0,30);
-	     astroidcoords[i][1] = i +randBetween(0,30);;
-	     astroidcoords[i][2] = i+randBetween(0,30);
-	     astroidcoords[i][3] = randBetween(0,10);;
+
+	     astroidcoords[i][0] = i+randBetween(0,50);
+	     astroidcoords[i][1] = i +randBetween(0,50);
+	     astroidcoords[i][2] = i+randBetween(0,50);
+	     astroidcoords[i][3] = randBetween(0,10);
 		
 		glPushMatrix();
-		float angle = (90 * i);
-		float distance = 80;
 
 		//move it up so they float
 		//glTranslatef(0, 0.0f, 0);
@@ -551,7 +550,7 @@ void initAstroids() {
 		//glTranslatef(AstroidDetailAccuracy / -2.0f, AstroidDetailAccuracy / 2.0f,
 				//AstroidDetailAccuracy / -2.0f);
 		//int accuracy = AstroidDetailAccuracy;
-		drawAstroid( astroidcoords[i][0], astroidcoords[i][1], astroidcoords[i][2],astroidcoords[i][3]);
+		//drawAstroid( astroidcoords[i][0], astroidcoords[i][1], astroidcoords[i][2],astroidcoords[i][3]);
 
 		glPopMatrix();
 	}
@@ -762,54 +761,7 @@ void drawSky() {
 }
 
 
-/**
- * loadGLTexture
- * Loads a texture and returns the textureid
- */
-GLuint loadGLTexture(const char * filename, int wrap, int width, int height) {
-	GLuint texture;
-	BYTE * data;
-	FILE * file;
 
-	// open .raw texture file, reading bytes
-	// .raw has no header
-	file = fopen(filename, "rb");
-	if (file == NULL) {
-		printf("Could not load texture.\n");
-		return 0;
-	}
-	// create data buffer
-	data = malloc(width * height * 3);
-
-	// read texture data
-	fread(data, width * height * 3, 1, file);
-	fclose(file);
-
-	// generate texture id
-	glGenTextures(1, &texture);
-	// bind the texture
-	glBindTexture( GL_TEXTURE_2D, texture);
-	//configuration
-	glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-	GL_LINEAR_MIPMAP_NEAREST);
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	//wrap or cut off based on param
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
-			wrap ? GL_REPEAT : GL_CLAMP);
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
-			wrap ? GL_REPEAT : GL_CLAMP);
-
-	// build 2d mipmaps
-	gluBuild2DMipmaps( GL_TEXTURE_2D, 3, width, height,
-	GL_RGB, GL_UNSIGNED_BYTE, data);
-
-	// free data buffer, no longer needed
-	free(data);
-
-	//return the texture
-	return texture;
-}
 
 /**
  * initTextures
@@ -989,14 +941,7 @@ void initGL(void) {
 	glPolygonMode( GL_BACK, renderingOptions[toggleWireframe]);
 	glPolygonMode( GL_FRONT, renderingOptions[toggleWireframe]);
 
-	// define the color of the fog, light pink because assignment screenshots showed it
-	GLfloat fogColor[4] = { 1, 0.7, 0.8, 0.3 };
-	// set the color of the fog
-	glFogfv(GL_FOG_COLOR, fogColor);
-	glFogf(GL_FOG_MODE, GL_EXP);
-	glHint(GL_FOG_HINT, GL_NICEST);
-	glFogf(GL_FOG_DENSITY, originalFogDensity);
-	glDisable(GL_FOG);
+
 
 }
 
@@ -1174,9 +1119,15 @@ void update() {
 
 		if (boolAccelerate == 1 && planeSpeed <= planeMaxSpeed - planeAcc) {
 			planeSpeed += planeAcc;
+			emission += 7;
 		} else if (boolDeaccelerate == 1
 				&& planeSpeed >= planeMinSpeed + planeDeacc) {
 			planeSpeed -= planeDeacc;
+			emission -= 7;
+				if (emission <10)
+				{
+					emission = 10;
+				}
 		}
 		//if alternate controls are enabled
 		if (toggleAltControls == 0) {
@@ -1214,7 +1165,7 @@ void update() {
 			exploding = 1;
 			eyeY = 2;
 		}
-		else if (check_colision(atX, atY, atZ) == 1)
+		else if (check_colision(eyeX, eyeY, eyeZ) == 1)
 		{
 			alive = 0;
 			explosionScale = 0.0f;
@@ -1245,16 +1196,6 @@ void draw() {
 	glPushMatrix();
 	glColor4f(1.0, 1.0, 1.0, 1.0f);
 	//set up camera
-	/*
-   double Ex = -2*dim*Sin(th)*Cos(ph);
-   double Ey = +2*dim        *Sin(ph);
-   double Ez = +2*dim*Cos(th)*Cos(ph);
-   double Ox = 0;
-   double Oy = 0;
-   double Oz = 0;
-   double Ux = 0; double Uy = 1; double Uz = 0;
-   gluLookAt(Ex,Ey,Ez , Ox,Oy,Oz , Ux,Uy,Uz);
-   */
 	
 	gluLookAt(eyeX, eyeY, eyeZ, /* eye */
 	atX, atY, atZ, /* looking at*/
@@ -1321,8 +1262,7 @@ void draw() {
 		drawSea();
 
 		glPopMatrix();
-
-		if (toggleAltWeather == 0) {
+				if (toggleAltWeather == 0) {
 			glDisable(GL_FOG);
 		}
 
@@ -1340,6 +1280,7 @@ void draw() {
 		glEnable(GL_CULL_FACE);
 		glPopMatrix();
 		glDisable( GL_TEXTURE_2D);
+
 	}
 
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, dull);
@@ -1356,7 +1297,8 @@ void draw() {
 
 	if(alive==1){
 		glPushMatrix();
-		float rotationDeg=(planeRotation * 180.0f /M_PI);
+		float rotationDeg=(planeRotation * 180.0f /M_PI);  // convert to radians
+		//translate all vertecies drawn for the plane
 		glTranslatef(eyeX+((atX-eyeX)/2.0f), eyeY+((atY-eyeY)/2.0f)-2,eyeZ+((atZ-eyeZ)/2.0f));
 		glScalef(0.8f, 0.8f, 0.8f);
 		glRotatef(rotationDeg, 0, 1, 0);
@@ -1393,13 +1335,14 @@ void draw() {
 		}
 		if (toggleshower ==1)
 		{
+			glColor3d(1,1,1);
 			for (int i= 0; i<10; i++)
 			{
-				int mapSize = (int) AstroidDetailAccuracy;
-				double rx = randBetween(0,mapSize);
-				double ry = randBetween(0,mapSize);
-				double rz = randBetween(0,mapSize);
-				sphere1(rx, ry, rz, 1);   
+				;
+				double rx = randBetween(0,300);
+				double ry = randBetween(0,300);
+				double rz = randBetween(0,300);
+				troid(rx, ry, rz, 1, AstroidTexture);   
             }
 	    }
 		
@@ -1465,9 +1408,7 @@ void keyUp(unsigned char key, int mouseX, int mouseY) {
 		glPolygonMode( GL_BACK, renderingOptions[toggleWireframe]);
 		glPolygonMode( GL_FRONT, renderingOptions[toggleWireframe]);
 	}
-	if (key == 'b') {
-		toggleFog = 1 - toggleFog;
-	}
+    
 	//  toggle cock pit vs ship view
     if (key == 'c' || key == 'C')
       ship = (ship+1)%2;
@@ -1491,6 +1432,9 @@ void keyUp(unsigned char key, int mouseX, int mouseY) {
 	}
 	if (key == 's') {
 		toggleGrid = 1 - toggleGrid;
+	}
+	if (key == 'v') {
+		toggleshower = 1 - toggleshower;
 	}
 	if (key == 't') {
 		toggleAstroidTextures = 1 - toggleAstroidTextures;

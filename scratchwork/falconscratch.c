@@ -29,7 +29,7 @@
 #include <math.h>
 #include "Common.h"
 
-
+GLuint falconId;
 #define PI 3.14159265358979323846
 /*  D degrees of rotation */
 #define DEF_D 5
@@ -55,6 +55,16 @@
 const double plane_angle = 0.5;
 double movex = 0;
 
+/**
+ * randBetween
+ * Returns a random number between the given min and max.
+ */
+float randBetween(int min, int max) {
+	if (max <= min) {
+		return min;
+	}
+	return ((rand() % (max - min)) + min);
+}
 /*****************************************************************/
 /******************** FUNCTION DEFINITIONS ***********************/
 /*****************************************************************/
@@ -231,9 +241,9 @@ static void Vertex(double th,double ph)
 }
 
 void body_cone(double x, double y, double z, double dx, double dy, double dz, 
-							 double deg_cir, double x_rot, double z_rot)
+							 double deg_cir, double x_rot, double z_rot, unsigned int texture)
 {
-  /* cone */
+/* cone */
 
     /* sides */
     glPushMatrix();
@@ -241,24 +251,24 @@ void body_cone(double x, double y, double z, double dx, double dy, double dz,
     glScaled(dx, dy, dz);
     glRotated(x_rot, 1, 0, 0);
     glRotated(z_rot, 0, 0, 1);
-    glBindTexture(GL_TEXTURE_2D, texture[0]);
+    glBindTexture(GL_TEXTURE_2D, texture);
     glBegin(GL_TRIANGLES);
 
     for (int k=0;k<=deg_cir;k+=DEF_D)
     {
-	  x = Cos(k)*Cos(k);
-	  y = Sin(k)*Sin(k);
-	  double m = sqrt(x+y);
+	  x=Cos(k);
+	  y= Sin(k);
+	  double m = sqrt(Cos(k)*Cos(k)+Sin(k)*Sin(k));
 	  double nx = x/m;
 	  double ny = y/m;
 	  double hr = 1/1;
 	  glNormal3d(nx*hr, ny*hr, hr); 
       // height
-      glTexCoord2f(.5,1.0); glVertex3d(0,0,1);
+      glTexCoord2f(.634,.5); glVertex3d(0,0,1);
 
-      glTexCoord2f(0.0,0.0); glVertex3d(Cos(k),Sin(k),0);
+      glTexCoord2f(.25*Cos(k-65)+0.634,.45*Sin(k-65)+.5); glVertex3d(Cos(k),Sin(k),0);
 
-      glTexCoord2f(1.0,0.0); glVertex3d(Cos(k+DEF_D),Sin(k+DEF_D),0);
+      glTexCoord2f(.25*Cos(k-65+DEF_D)+0.634,.45*Sin(k-65+DEF_D)+.5); glVertex3d(Cos(k+DEF_D),Sin(k+DEF_D),0);
     }
     glEnd();
     glPopMatrix();
@@ -270,18 +280,21 @@ void body_mid_sect(double x, double y, double z,
 {
    /* cylinder */
    /*  sides */
+   double mag_x = .5;
+   double mag_y = .5;
    glPushMatrix();
    glTranslated(x,y,z);
    glScaled(dx, dy, dz);
    glRotated(90, 1, 0, 0);
    glRotated(z_rot, 0, 1, 0);
-
+   glBindTexture(GL_TEXTURE_2D, texture[2]);
    glBegin(GL_QUAD_STRIP);
-   for (int j=0;j<=deg_cir;j+=DEF_D) {
+   //DEF_D
+   for (int j=0;j<=deg_cir;j+= DEF_D) {
 	 glNormal3f(-Cos(j),0,-Sin(j));
-     glVertex3d(Cos(j),+1,Sin(j));
+     glTexCoord2f(0,Sin(j)); glVertex3d(Cos(j),+1,Sin(j));
      glNormal3f(-Cos(j),0,-Sin(j));
-     glVertex3d(Cos(j),-1,Sin(j));
+     glTexCoord2f(.085, Sin(j)); glVertex3d(Cos(j),-1,Sin(j));
    }
    glEnd();
    glPopMatrix();
@@ -289,8 +302,10 @@ void body_mid_sect(double x, double y, double z,
 
 /* This function will draw the cylinder
  *
+ *   @x, y, z  :           positions coords for gltranslate
  *   @parameter1: radius = The radius of cylinder
  *   @parameter2: height = Height of the cylinder
+ *   @parameter3: x_rot  = degrees to rotate around the x axis
  *
  *   @return: Nothing
 */
@@ -299,12 +314,13 @@ void draw_cylinder(GLfloat x,
 				   GLfloat z,
 				   GLfloat radius,
 				   GLfloat height,
-				   double x_rot)
+				   double x_rot, unsigned int cap, unsigned int cyl)
 {
 
     GLfloat angle          = 0.0;
     GLfloat angle_stepsize = 0.1;
     glPushMatrix();
+    glBindTexture(GL_TEXTURE_2D, cyl);
 	glTranslatef(x, y, z);
 	glRotated(x_rot, 1,0,0);
     /** Draw the tube */
@@ -314,8 +330,12 @@ void draw_cylinder(GLfloat x,
         while( angle < 2*PI ) {
             x = radius * cos(angle);
             y = radius * sin(angle);
-            glNormal3f(cos(angle),sin(angle),0);
-            glVertex3f(x, y , height);
+            double m = sqrt(x*+y*y);
+	        double nx = x/m;
+	        double ny = y/m;
+            glNormal3f(nx,ny,0);
+            glTexCoord2f(x,height); glVertex3f(x, y , height);
+            glTexCoord2f(x,0); glNormal3f(x,y,0);
             glVertex3f(x, y , 0.0);
             angle = angle + angle_stepsize;
         }
@@ -324,12 +344,14 @@ void draw_cylinder(GLfloat x,
     glEnd();
 
     /** Draw the circle on top of cylinder */
+    glBindTexture(GL_TEXTURE_2D, cap);
     glBegin(GL_POLYGON);
     glNormal3f(0,0,1);
     angle = 0.0;
         while( angle < 2*PI ) {
             x = radius * cos(angle);
             y = radius * sin(angle);
+            glTexCoord2f(.085*x+.619,.11*y+.52);
             glVertex3f(x, y , height);
             angle = angle + angle_stepsize;
         }
@@ -355,17 +377,20 @@ void cock_pit_body(GLfloat x,
 				   double top,
 				   double height,
 				   double slices,
-				   double stacks)
+				   double stacks,
+				   unsigned int texture)
 {
 
 
     glPushMatrix();
+    glBindTexture(GL_TEXTURE_2D, texture);
     glTranslatef(x, y, z);
     glRotated(th, dx, 0, 0);
     glRotated(sh, 0, dy, dz);
 
 	glRotated(th, dx, 0, 0);
     GLUquadricObj *quadObj = gluNewQuadric();
+    gluQuadricTexture(quadObj, GLU_TRUE); 
     gluCylinder(quadObj, base, top, height, slices, stacks);
     glPopMatrix();
 }
@@ -385,11 +410,13 @@ void cock_pit_body2(GLfloat x,
 				   double top,
 				   double height,
 				   double slices,
-				   double stacks)
+				   double stacks, 
+				   unsigned int texture)
 {
 
 
     glPushMatrix();
+    glBindTexture(GL_TEXTURE_2D, texture);
     glTranslatef(x, y, z);
     glRotated(th, dx, 0, 0);
     glRotated(sh, 0, dy, 0);
@@ -496,7 +523,8 @@ void sphere1(double x,double y,double z,double r)
  *	radius (GLFloat) - the radius that the painted circle will have
  */
 void drawHollowCircle(GLfloat x, GLfloat y, double dx, double dy, double dz,
-					GLfloat radius, double th, double sh)
+					GLfloat radius, double th, double sh, double mag_x,
+					double mag_y, double center_x, double center_y, unsigned int texture)
 {
 	glPushMatrix();
 	glTranslated(dx, dy, dz);
@@ -505,13 +533,18 @@ void drawHollowCircle(GLfloat x, GLfloat y, double dx, double dy, double dz,
 	glNormal3f(0,0,1);
 	int i;
 	int lineAmount = 100; //# of triangles used to draw circle
+
 	
 	//GLfloat radius = 0.8f; //radius
 	GLfloat twicePi = 2.0f * PI;
-	glBindTexture(GL_TEXTURE_2D, texture[0]);
+	glBindTexture(GL_TEXTURE_2D, texture);
 	glBegin(GL_POLYGON);
 		for(i = 0; i <= lineAmount;i++) { 
-			glTexCoord2f(0.0,0.0);  glVertex2f(
+			glTexCoord2f(
+			    mag_x*(x + (radius * cos(i *  twicePi / lineAmount)))+center_x, 
+			    mag_y*(y + (radius* sin(i * twicePi / lineAmount)))+center_y
+			);
+			glVertex2f(
 			    x + (radius * cos(i *  twicePi / lineAmount)), 
 			    y + (radius* sin(i * twicePi / lineAmount))
 			);
@@ -695,25 +728,93 @@ void tunnel(double x, double y, double z,
    // tunnel interieor ship piece
    glBegin(GL_POLYGON);
    glNormal3f( 0.0, 0.99875234, -0.04993762);
-   glTexCoord2f(0.0,0.0); glVertex3d(6.669, -2.85,1.0);
-   glTexCoord2f(0.0,1.0); glVertex3d(7.669, -2.85,1.0);
-   glTexCoord2f(1.0,1.0); glVertex3d(8.069, -2.9,0.0);
-   glTexCoord2f(1.0,0.0); glVertex3d(6.269, -2.9,0.0);
+   glTexCoord2f(0.58,0.659); glVertex3d(6.669, -2.85,1.0);//1
+   glTexCoord2f(0.59,0.659); glVertex3d(7.669, -2.85,1.0);//2
+   glTexCoord2f(0.61,0.60); glVertex3d(8.069, -2.9,0.0);//3
+   glTexCoord2f(0.56,0.60); glVertex3d(6.269, -2.9,0.0);//4
    glEnd();
+   glBindTexture(GL_TEXTURE_2D, texture[2]);
    // tunnel escape pod piece
    glBegin(GL_POLYGON);
    glNormal3f(0,-1,0);
-   glTexCoord2f(0.0,0.0); glVertex3d(7.669, -1,1.0);
-   glTexCoord2f(0.0,1.0); glVertex3d(6.669, -1,1.0);
-   glTexCoord2f(1.0,1.0); glVertex3d(6.269, -1,0.1);
-   glTexCoord2f(1.0,0.0); glVertex3d(8.069, -1,0.1);
+   glTexCoord2f(0.402,1); glVertex3d(7.669, -1,1.0);//1
+   glTexCoord2f(0.32,1); glVertex3d(6.669, -1,1.0);//2
+   glTexCoord2f(.28,.97); glVertex3d(6.269, -1,0.1);//3
+   glTexCoord2f(.442,.97); glVertex3d(8.069, -1,0.1);//4
    glEnd();
    glBegin(GL_POLYGON);
    glNormal3f(0,-1,0);
-   glTexCoord2f(0.0,0.0); glVertex3d(6.269, -1,0.1);
-   glTexCoord2f(0.0,1.0); glVertex3d(6.269, -1,-0.5);
-   glTexCoord2f(1.0,1.0); glVertex3d(8.069, -1,-0.5);
-   glTexCoord2f(1.0,0.0); glVertex3d(8.069, -1,0.1);
+   glTexCoord2f(.28,.97); glVertex3d(6.269, -1,0.1);
+   glTexCoord2f(.28,.9); glVertex3d(6.269, -1,-0.5);
+   glTexCoord2f(.442,.9); glVertex3d(8.069, -1,-0.5);
+   glTexCoord2f(.442,.97); glVertex3d(8.069, -1,0.1);
+   glEnd();
+   glPopMatrix();
+}
+
+
+/*
+ *need different lengths for the tunels on diffent sides of the ship
+ * 
+ */
+void tunnel2(double x, double y, double z, 
+				   double dx, double dy, double dz,
+				   double th, double sh, double sx,
+				   double sy, double sz)
+{
+   glPushMatrix();
+   // tunnel top piece
+   glTranslated(x, y, z);
+   glRotated(th, dx, 0,0);
+   glRotated(sh, 0, dy,dz);
+   glScaled(sx, sy, sz);
+   glBindTexture(GL_TEXTURE_2D, texture[3]);
+   glBegin(GL_POLYGON);
+   glNormal3f(0,0,1);
+   glTexCoord2f(0.58,0.659); glVertex3d(6.669, -2.85,1.0); //1
+   glTexCoord2f(0.643,0.661); glVertex3d(7.669, -2.85,1.0); //2
+   glTexCoord2f(0.625,.915); glVertex3d(7.669, -1,1.0); //3
+   glTexCoord2f(0.563,.91); glVertex3d(6.669, -1,1.0); //4
+   glEnd();
+   // tunnel side 1 piece
+   glBegin(GL_POLYGON);
+   glNormal3f(0.92796046,  0.01958756, -0.37216356);
+   glTexCoord2f(0.58,0.659); glVertex3d(6.669, -2.85,1.0); //1
+   glTexCoord2f(0.55,.659); glVertex3d(6.269, -2.9,0.0); //2
+   glTexCoord2f(.535,.89); glVertex3d(6.269, -1,0.1);  //3
+   glTexCoord2f(.565,.915); glVertex3d(6.669, -1,1.0); //4
+   glEnd();
+   // tunnel side 2 piece
+   glBegin(GL_POLYGON);
+   glNormal3f(0.92796046, -0.01958756,  0.37216356);
+   glTexCoord2f(0.595,0.3); glVertex3d(7.669, -2.85,1.0);//1
+   glTexCoord2f(0.56,0.3); glVertex3d(8.069, -2.9,0.0); //2
+   glTexCoord2f(.57,0.1); glVertex3d(8.069, -1,0.1); //3
+   glTexCoord2f(.602,0.1); glVertex3d(7.669, -1,1.0); //4
+   glEnd();
+   // tunnel interieor ship piece
+   glBegin(GL_POLYGON);
+   glNormal3f( 0.0, 0.99875234, -0.04993762);
+   glTexCoord2f(0.58,0.659); glVertex3d(6.669, -2.85,1.0);//1
+   glTexCoord2f(0.59,0.659); glVertex3d(7.669, -2.85,1.0);//2
+   glTexCoord2f(0.61,0.60); glVertex3d(8.069, -2.9,0.0);//3
+   glTexCoord2f(0.56,0.60); glVertex3d(6.269, -2.9,0.0);//4
+   glEnd();
+   glBindTexture(GL_TEXTURE_2D, texture[2]);
+   // tunnel escape pod piece
+   glBegin(GL_POLYGON);
+   glNormal3f(0,-1,0);
+   glTexCoord2f(0.402,1); glVertex3d(7.669, -1,1.0);//1
+   glTexCoord2f(0.32,1); glVertex3d(6.669, -1,1.0);//2
+   glTexCoord2f(.28,.97); glVertex3d(6.269, -1,0.1);//3
+   glTexCoord2f(.442,.97); glVertex3d(8.069, -1,0.1);//4
+   glEnd();
+   glBegin(GL_POLYGON);
+   glNormal3f(0,-1,0);
+   glTexCoord2f(.28,.97); glVertex3d(6.269, -1,0.1);
+   glTexCoord2f(.28,.9); glVertex3d(6.269, -1,-0.5);
+   glTexCoord2f(.442,.9); glVertex3d(8.069, -1,-0.5);
+   glTexCoord2f(.442,.97); glVertex3d(8.069, -1,0.1);
    glEnd();
    glPopMatrix();
 }
@@ -725,50 +826,52 @@ void fronts_piece(double x, double y, double z,
    // fronts piece
    glTranslated(x, y, z);
    glRotated(th, dx, 0,0);
-   glBindTexture(GL_TEXTURE_2D, texture[0]);
+   glBindTexture(GL_TEXTURE_2D, texture[3]);
    glBegin(GL_POLYGON);
    glNormal3f( 0.23162053, 0, -0.97280621);
+   //top pieace
+   glTexCoord2f(0.175,.55); glVertex3d(2.0,-3.65,0.3);//1
+   glTexCoord2f(0.525,.6); glVertex3d(5.9,-3.55,.79);//2
+   glTexCoord2f(.53,.43); glVertex3d(5.9,-4.78,.75);//3
+   glTexCoord2f(.175,.43); glVertex3d(2.0,-4.68,.3);//4
+   glEnd();
+   
+   	
 
-   glTexCoord2f(0.0,0.0); glVertex3d(2.0,-3.65,0.8);
-   glTexCoord2f(0.0,1.0); glVertex3d(5.9,-3.55,1.1);
-   glTexCoord2f(1.0,1.0); glVertex3d(5.9,-4.78,1.1);
-   glTexCoord2f(1.0,0.0); glVertex3d(2.0,-4.68,0.8);
-   glEnd();	
    //up slant pieces
    glBegin(GL_POLYGON);
    glNormal3f(-0.04661261, 0.95678517, 0.28703555);
-
-   glTexCoord2f(0.0,0.0); glVertex3d(2.0,-3.65,0.8);
-   glTexCoord2f(0.0,1.0); glVertex3d(5.9,-3.55,1.1);
-   glTexCoord2f(1.0,1.0); glVertex3d(5.9,-3.25,0.1);
-   glTexCoord2f(1.0,0.0); glVertex3d(1.7,-3.35,0.1);
+   glTexCoord2f(0.275,.6); glVertex3d(2.0,-3.65,0.3);//1
+   glTexCoord2f(0.525,.6); glVertex3d(5.9,-3.55,.79);//2
+   glTexCoord2f(0.55,.65); glVertex3d(5.9,-3.25,0.1);//3
+   glTexCoord2f(0.25,.65); glVertex3d(1.7,-3.35,0.1);//
    glEnd();	
    //down slant pieceside
+
    glBegin(GL_POLYGON);
    glNormal3f(0.07268645, 0.69821961, -0.712184);
-
-   glTexCoord2f(0.0,0.0); glVertex3d(2.0,-4.68,0.8);
-   glTexCoord2f(0.0,1.0); glVertex3d(5.9,-4.78,1.1);
-   glTexCoord2f(1.0,1.0); glVertex3d(5.9,-5.8,0.1);
-   glTexCoord2f(1.0,0.0); glVertex3d(1.7,-4.98,0.1);
+   glTexCoord2f(.175,.43); glVertex3d(2.0,-4.68,0.3);
+   glTexCoord2f(.53,.43); glVertex3d(5.9,-4.78,.79);
+   glTexCoord2f(.53,.4); glVertex3d(5.9,-5.8,0.1);
+   glTexCoord2f(.15, .425); glVertex3d(1.7,-4.98,0.1);
    glEnd();	
    // front slant pieces
+   glBindTexture(GL_TEXTURE_2D, texture[5]);
    glBegin(GL_POLYGON);
-   glNormal3f(0.91914503, 0, -0.3939193);
-
-   glTexCoord2f(0.0,0.0); glVertex3d(2.0,-3.75,0.8);
-   glTexCoord2f(0.0,1.0); glVertex3d(2.0,-4.68,0.8);
-   glTexCoord2f(1.0,1.0); glVertex3d(1.7,-4.98,0.1);
-   glTexCoord2f(1.0,0.0); glVertex3d(1.7,-3.35,0.1);
+   glNormal3f(0.91914503, 0, -0.3939193);\
+   glTexCoord2f(0.485,.57); glVertex3d(2.0,-3.65,0.3);//1
+   glTexCoord2f(.64,.58); glVertex3d(2.0,-4.68,0.3);//2
+   glTexCoord2f(0.645,.525); glVertex3d(1.7,-4.98,0.1);//3
+   glTexCoord2f(0.475,.52); glVertex3d(1.7,-3.35,0.1);//4
    glEnd();	
    // back
    glBegin(GL_POLYGON);
    glNormal3f(-1,0,0);
 
-   glTexCoord2f(0.0,0.0); glVertex3d(5.9,-3.55,1.1);
+   glTexCoord2f(0.0,0.0); glVertex3d(5.9,-3.55,.79);
    glTexCoord2f(0.0,1.0); glVertex3d(5.9,-3.25,0.1);
    glTexCoord2f(1.0,1.0); glVertex3d(5.9,-5.8,0.1);
-   glTexCoord2f(1.0,0.0); glVertex3d(5.9,-4.78,1.1);
+   glTexCoord2f(1.0,0.0); glVertex3d(5.9,-4.78,.79);
    glEnd();
    // bottom 
    glBegin(GL_POLYGON);
@@ -880,21 +983,19 @@ void cockpit()
 
 
 
-
-
-void static compile_falcon()
+void compile_falcon()
 {
-	double x = -6;
-	double y = 2;
-	double z = 0;
+	double x = -7;
+	double y = 0;
+	double z = -4;
 	double dx = 1;
 	double dy = 1;
     double dz = 1;
-	double th = 0;
+
    glPushMatrix();
    //  Offset, scale and rotate
    glTranslated(x,y,z);
-   glRotated(th,1,0,0);
+   glRotated(270,1,0,0);
    glRotated(0,0,0,1);
 
    //glRotated(sh,0,1,0);
@@ -925,27 +1026,29 @@ void static compile_falcon()
 	
    glColor3f(1,1,1);
    //hull of the ship far back
-   body_cone(6.669,-4.2,-1, 3.8, 3.8, 1,130,180,293);
-   body_cone(6.669,-4.2,-1, 3.8, 3.8, 1,165.009,180,96.3);
+   body_cone(6.669,-4.2,-1, 3.8, 3.8, 1,130,180,293, texture[3]);
+   body_cone(6.669,-4.2,-1, 3.8, 3.8, 1,165.009,180,96.3, texture[3]);
 
    //glColor3f(.6,.6,1);
    glColor3f(1,1,1);
    //hull of the ship close back
-   body_cone(6.669,-4.2,0, 3.8, 3.8, 1,130,0,293);
+   body_cone(6.669,-4.2,0, 3.8, 3.8, 1,130,0,293, texture[3]);
    //close front
-   body_cone(6.669,-4.2,0, 3.8, 3.8, 1,165,0,94.5);
-   // extra body cap
-   glColor3f(1,1,1);
-   body_cone(6.669,-4.2,0.495, 2, 2, .5,360,0,0);
-   body_cone(6.669,-4.2,-1.495, 2, 2, .5,360,180,0);
+   body_cone(6.669,-4.2,0, 3.8, 3.8, 1,165,0,94.5, texture[3]);
+   // extra body closer
+   //hull_close( 0, 0, 0, 0, 0, 0, texture[0]);
+   
 
-   // cap done we will have to send the functions the normals
-   draw_cylinder(6.869,-3.975, -1.5, 1, .5,180);
-   draw_cylinder(6.869,-3.975, 0.5, 1, .5,0);
+
+   // gun cap otherside body done we will have to send the functions the normals
+   draw_cylinder(6.869,-3.975, -1.5, 1, .5,180, texture[3], texture[7]);
+   draw_cylinder(6.869,-3.975, 0.5, 1, .48,0, texture[3], texture[7]);
+
    //cirular body of ship
    glColor3f(1,1,1);
    body_mid_sect(6.669, -4.2, -.5,3.8,3.8,.5,135,90,67);
    body_mid_sect(6.669, -4.2, -.5,3.8,3.8,.5,168,90,261);
+   
 
    
    
@@ -954,36 +1057,38 @@ void static compile_falcon()
    fronts_piece(0,-8.5,-1,1,0,0,180);
    //one side
    //top
-   tunnel(0,0,0,0,0,0,0,0);
+   tunnel2(0,0,0,0,0,0,0,0,1,1.05,1);
    //bot
-   tunnel(14.33,0,-1,1,0,1,180, 180);
+   tunnel2(14.33,0,-1,1,0,1,180, 180,1,1.05,1);
    //other side
-   tunnel(0,-8.35,-1,1,0,0,180,0);
-   tunnel(14.33,-8.35,0,1,1,0,180,180);
+   tunnel2(0,-9.1,-1,1,0,0,180,0,1,1.45,1);
+   tunnel2(14.33,-9.1,0,1,1,0,180,180,1,1.45,1);
    //tunnel
 
    // cock pit tunnel inside ship
-   cock_pit_body(4.75, -0.2, 0.5, 1.0, 0.0, 1.0, 48.0, 25.0, 0.8, 0.8, 3.0, 50.0, 10.0);
+   cock_pit_body(4.75, -0.2, 0.5, 1.0, 0.0, 1.0, 48.0, 25.0, 0.8, 0.8, 3.0, 50.0, 10.0, texture[7]);
    
    glColor3f(1,1,1);
-   cock_pit_body(5.675, -3.01, 0.34, 1.0, 0.0, 1.0, 48.0, 25.0, 0.8, 0.3, .5, 50.0, 10.0);
+   cock_pit_body(5.675, -3.01, 0.34, 1.0, 0.0, 1.0, 48.0, 25.0, 0.8, 0.3, .5, 50.0, 10.0, texture[7]);
    
    glColor3f(1.0,1.0,1.0);
    // cockpit tunnel out side shipt
-   cock_pit_body2(3.299, -0.28, 0.5, 1, 1, 0, 90, 90, 0.8, 0.8, 1.5, 50, 10);
+   cock_pit_body2(3.299, -0.28, 0.5, 1, 1, 0, 90, 90, 0.8, 0.8, 1.5, 50, 10, texture[7]);
    glColor3f(1,1,1);
    //cock pit cone
-   cock_pit_body2(1.789, -0.2799, 0.5, 1, 1, 0, 90, 90, 0.5, 0.8, 1.5, 50, 10);
+   cock_pit_body2(1.789, -0.2799, 0.5, 1, 1, 0, 90, 90, 0.5, 0.8, 1.5, 50, 10, texture[3]);
    glColor3f(1,1,1);
    // join cock pit sections
-   sphere1(4.779,-0.28,0.5,0.8);
+   sphere1(4.779,-0.28,0.5,0.79);
    glColor3f(1,1,1);
    // escape pods
-   cock_pit_body2(7.15,-.5,-.5,1,0,0,90,0, .7, .8, 1, 50, 10);
-   cock_pit_body2(7.15,-7,-.5,1,0,0,90,0, .8, .7, 1, 50, 10);
-   drawHollowCircle(0,0, 7.15, -.5, -.5, .7,90,0);
-   drawHollowCircle(0,0, 7.15, -8, -.5, .7,90,0);
-   drawHollowCircle(0,0,1.79,-.28,.5,.5,0,90);
+   cock_pit_body2(7.15,-.5,-.5,1,0,0,90,0, .7, .8, 1, 50, 10, texture[7]);
+   cock_pit_body2(7.15,-7,-.5,1,0,0,90,0, .8, .7, 1, 50, 10, texture[7]);
+   drawHollowCircle(0,0, 7.15, -.5, -.5, .7,90,0, .5, .28, .52, .455, texture[6]);
+   drawHollowCircle(0,0, 7.15, -8, -.5, .7,90,0, .5, .28, .52, .455, texture[6]);
+   
+   //cockpit window
+   drawHollowCircle(0,0,1.79,-.28,.5,.5,0,90, .2, .2, .1, .6, texture[5]);
    tunl_hull_conn(0,0,0,0,0,0, texture[0]);
 
    
@@ -991,6 +1096,20 @@ void static compile_falcon()
    glDisable(GL_TEXTURE_2D);
    glPopMatrix();
 }
+
+void initFalcon()
+{
+    falconId = glGenLists(1);
+    glNewList(falconId, GL_COMPILE);
+        compile_falcon();
+    glEndList();
+}
+
+void drawfalcon()
+{
+  glCallList(falconId);	
+}
+
 
 /*
  *  Draw a ball
@@ -1262,15 +1381,21 @@ void display()
 	 	 //}
  
 	  	 //glRotatef(90, 0, 1, 0);
-        
-        compile_falcon();
+           compile_falcon();
+           //drawfalcon();
 
 		glPopMatrix();
         break;
 	}
 
 
-
+   for (int i= 0; i<10; i++)
+   {
+	   double rx = randBetween(0,10);
+	   double ry = randBetween(0,10);
+	   double rz = randBetween(0,10);
+	  sphere1(rx, ry, rz, 1);   
+   }
    //  Draw axes - no lighting from here on
    glDisable(GL_LIGHTING);
    glColor3f(1,1,1);
@@ -1750,6 +1875,10 @@ void initGL(void) {
  */
 int main(int argc,char* argv[])
 {
+    float seed = time(NULL);
+	//printf("Seed: %f\n", seed);
+
+	srand(seed);
    //  Initialize GLUT
    glutInit(&argc,argv);
    //  Request double buffered, true color window with Z buffering at 600x600
@@ -1776,7 +1905,12 @@ int main(int argc,char* argv[])
    sky[2] = LoadTexBMP("hoth3.bmp");
    sky[3] = LoadTexBMP("snow2.bmp");
    texture[1] = LoadTexBMP("cockpit.bmp");
+   texture[2] = LoadTexBMP("falctex.bmp");
    texture[3] = LoadTexBMP("falctex2.bmp");
+   texture[4] = LoadTexBMP("sideview.bmp");
+   texture[5] = LoadTexBMP("frontview2.bmp");
+   texture[6] = LoadTexBMP("pod2.bmp");
+   texture[7] = LoadTexBMP("flighttunnel.bmp");
    //  Set timer
    timer(1);
    initGL();

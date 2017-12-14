@@ -311,9 +311,6 @@ void troid(double x,double y,double z,double r, unsigned int texture)
    glBindTexture(GL_TEXTURE_2D, texture);
    //  Offset and scale
    glTranslated(x,y,z);
-   //double rx = randBetween(0,10);
-   //double ry = randBetween(0,10);
-   //double rz = randBetween(0,10);
    glScaled(r,r,r);
    //glMaterialf(GL_FRONT,GL_SHININESS,.5);
    //glMaterialfv(GL_FRONT,GL_SPECULAR,yellow);
@@ -329,9 +326,9 @@ void troid(double x,double y,double z,double r, unsigned int texture)
 		 {
 		    glTranslated(0,.5, 0);	 
 	     }
-	     glTexCoord2f(.4*(Sin(th)*Cos(ph)),.4*(Cos(th)*Cos(ph))); 
+	     glTexCoord2f(.3*(Sin(th)*Cos(ph)),.3*(Cos(th)*Cos(ph))); 
          Vertex(th,ph);
-         glTexCoord2f(.4*(Sin(th)*Cos(ph+inc)),.4*(Cos(th)*Cos(ph+inc))); 
+         glTexCoord2f(.3*(Sin(th)*Cos(ph+inc)),.3*(Cos(th)*Cos(ph+inc))); 
          Vertex(th,ph+inc);
       }
       glEnd();

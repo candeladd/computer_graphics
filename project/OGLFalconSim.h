@@ -58,7 +58,7 @@ void ErrCheck(const char* where);
 int  LoadOBJ(const char* file);
 
 
-GLuint loadModel(GLuint id, GLuint numPoints, char* fileName, int colorScheme);
+
 
 //free memory
 void freeApp();
@@ -77,7 +77,7 @@ void drawTarget();
 void drawExplosion(int slices, int stacks);
 void drawBullet(float x, float y, float z);
 void drawAstroid(double x, double y, double z, double rr);
-unsigned int LoadTexBMP(const char* file);
+
 
 void colorAstroidByHeight(float x, float y, float z, float AstroidDetailAccuracy);
 

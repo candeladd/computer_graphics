@@ -1,0 +1,56 @@
+Final Project
+
+Andrew Candelaresi
+CSCI 5229 Fall 2017
+
+to compile use the makefile by typing:
+make
+
+to execute the program type:
+./FalconSim
+
+
+to clean use the comand:
+make clean
+
+
+  Flight code, bullets borrowed from Matthew Thomas
+  Code borrowed from course examples in CSCI 5229
+  CSCI 5229 Project: Millenium Falcon Sim
+  Creates an area to fly around with in a Millenium falcon sim.
+  Generates 50 sudo random astroids with collision detection.
+  w - toggles between frame and solid rendering
+  f - toggles between fullscreen and windowed mode
+  b - toggle fog on or off
+  s - toggle between grid and sea+sky
+  m - toggles Astroids on and off
+  t - toggles textures for Astroids on and off
+  c - toggles between cockpit and 3rd person view
+  q - quit
+ 
+ 
+  Standard controls:
+   mouse on top of screen - Tilt plane and camera up
+   mouse on bottom of screen - Title plane and camera down
+   scroll wheel - increase or decrease speed and changes color of thrusters
+   
+ 
+ 
+  Bonuses:
+  	f1 - toggle between standard and alternate controls
+        
+  	z - shoot bullets
+  	Spedometer (Shows speed roughly, green bar bottom left)
+  	Crash into the bottom of the scene or an astroid and explode
+  	r - respawn and generate new random world
+
+ 
+  Alternate controls:
+    	Page Up - Increase Speed
+  	Page Down - Decrease Speed
+  	Up - Raise elevation of plane
+  	Down - Lower elevation of plane
+  	mouse on left side of screen - Turn plane to the left
+  	mouse on right side of screen - Turn plane to the right
+
+ 
